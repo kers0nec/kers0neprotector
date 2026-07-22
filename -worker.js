@@ -1,33 +1,53 @@
-// _worker.js – KERSFORGE Loader (CLEAN VERSION)
+// _worker.js – KERSFORGE (FAULMOR-STYLE LOADER)
 export default {
   async fetch(request) {
     const url = new URL(request.url);
     const path = url.pathname;
 
     // ============================================================
-    // LOADER - RETURNS CLEAN LUA CODE
+    // LOADER - FAULMOR-STYLE URL FORMAT
+    // /api/public/loaders/SCRIPT_ID/lua
     // ============================================================
-    if (path.startsWith('/loader/')) {
-      const scriptId = path.replace('/loader/', '');
-      const key = url.searchParams.get('key') || '';
+    if (path.startsWith('/api/public/loaders/') && path.endsWith('/lua')) {
+      // Extract script ID from the path
+      // Example: /api/public/loaders/script_abc123/lua
+      const parts = path.split('/');
+      // parts = ['', 'api', 'public', 'loaders', 'script_abc123', 'lua']
+      const scriptId = parts[4]; // The 5th element (index 4)
+      
+      if (!scriptId || scriptId === '') {
+        return new Response('-- Error: No script ID provided', {
+          status: 400,
+          headers: { 'Content-Type': 'text/plain' }
+        });
+      }
 
-      // CLEAN LUA - NO OBFUSCATION, NO ANTI-DEOBFUSCATE
+      // This is the actual Lua script that will execute
       const luaScript = `
--- KERSFORGE Script
+-- KERSFORGE PROTECTED SCRIPT
 -- Script ID: ${scriptId}
+-- Format: Faulmor-style loader
 
 print("✅ KERSFORGE script loaded!")
 print("📜 Script ID: ${scriptId}")
 
--- Get player info
+-- Your actual script goes here
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 print("👤 Player: " .. tostring(LocalPlayer))
 print("🌐 Place ID: " .. tostring(game.PlaceId))
 
--- YOUR SCRIPT GOES HERE
+-- MAIN SCRIPT LOGIC
 print("🚀 Script is running!")
 
+-- PUT YOUR CODE HERE
+-- Example: 
+-- local function main()
+--     print("Hello from your script!")
+-- end
+-- main()
+
+print("✅ Script execution complete!")
 return true
 `;
 
@@ -41,35 +61,36 @@ return true
     }
 
     // ============================================================
-    // RAW SCRIPT ROUTE
+    // SUPPORT LEGACY /loader/ FORMAT TOO
     // ============================================================
-    if (path.startsWith('/script/')) {
-      const scriptId = path.replace('/script/', '');
-      return new Response(`
--- KERSFORGE Script
--- ID: ${scriptId}
-print("Script loaded!")
+    if (path.startsWith('/loader/')) {
+      const scriptId = path.replace('/loader/', '');
+      
+      const luaScript = `
+-- KERSFORGE PROTECTED SCRIPT
+-- Script ID: ${scriptId}
+print("✅ KERSFORGE script loaded!")
+print("📜 Script ID: ${scriptId}")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+print("👤 Player: " .. tostring(LocalPlayer))
+print("🚀 Script is running!")
 return true
-`, {
-        headers: { 'Content-Type': 'text/plain' }
+`;
+
+      return new Response(luaScript, {
+        headers: {
+          'Content-Type': 'text/plain',
+          'Cache-Control': 'no-store'
+        }
       });
     }
 
     // ============================================================
-    // API - GET ALL DATA
+    // SERVE HTML FILES
     // ============================================================
-    if (path === '/api/data') {
-      return new Response(JSON.stringify({
-        scripts: [],
-        keys: [],
-        bannedHWIDs: [],
-        serverTime: Date.now()
-      }), {
-        headers: { 
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
-        }
-      });
+    if (path === '/' || path === '/index.html' || path === '/dashboard.html' || path === '/admin.html' || path === '/callback.html') {
+      return fetch(request);
     }
 
     // ============================================================
@@ -95,6 +116,24 @@ return true
           headers: { 'Content-Type': 'application/json' }
         });
       }
+    }
+
+    // ============================================================
+    // API - GET DATA
+    // ============================================================
+    if (path === '/api/data') {
+      // In production, fetch from KV/database
+      return new Response(JSON.stringify({
+        scripts: [],
+        keys: [],
+        bannedHWIDs: [],
+        serverTime: Date.now()
+      }), {
+        headers: { 
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        }
+      });
     }
 
     // ============================================================
@@ -156,13 +195,6 @@ return true
           'Access-Control-Allow-Origin': '*'
         }
       });
-    }
-
-    // ============================================================
-    // SERVE HTML FILES
-    // ============================================================
-    if (path === '/' || path === '/index.html' || path === '/dashboard.html' || path === '/admin.html' || path === '/callback.html') {
-      return fetch(request);
     }
 
     // ============================================================
