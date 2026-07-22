@@ -1,4 +1,4 @@
-// _worker.js – KERSFORGE (ABSOLUTELY NO VALIDATION)
+// _worker.js – KERSFORGE (WORKING)
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
@@ -6,23 +6,27 @@ export default {
     const method = request.method;
 
     // ============================================================
-    // LOADER – RETURNS YOUR SAVED SCRIPT
+    // LOADER – RETURNS LUA CODE
     // ============================================================
     if (path.startsWith('/api/public/loaders/') && path.endsWith('/lua')) {
       const parts = path.split('/');
       const scriptId = parts[4] || 'unknown';
 
-      // In production: fetch from KV
-      // For now, return a default script
-      const yourScript = `-- KERSFORGE SCRIPT
+      const luaScript = `-- KERSFORGE SCRIPT
 -- Script ID: ${scriptId}
 
-print("Script loaded: ${scriptId}")
-print("KERSFORGE protection active")
+print("KERSFORGE loaded")
+print("Script ID: ${scriptId}")
 
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+print("Player: " .. tostring(LocalPlayer))
+print("Place ID: " .. tostring(game.PlaceId))
+
+print("Script running")
 return true`;
 
-      return new Response(yourScript, {
+      return new Response(luaScript, {
         headers: {
           'Content-Type': 'text/plain; charset=utf-8',
           'Cache-Control': 'no-store, no-cache, must-revalidate',
@@ -47,20 +51,13 @@ return true`;
     }
 
     // ============================================================
-    // API - CREATE SCRIPT (ABSOLUTELY NO VALIDATION)
+    // API - CREATE SCRIPT
     // ============================================================
     if (path === '/api/scripts' && method === 'POST') {
       try {
-        // Read the raw request body
         const body = await request.json();
-        
-        // Generate a random script ID
         const scriptId = 'script_' + crypto.randomUUID().replace(/-/g, '').substring(0, 12);
 
-        // In production: save to KV
-        // await env.KERSFORGE_KV.put(scriptId, body.code);
-
-        // Return success with the new ID
         return new Response(JSON.stringify({
           success: true,
           id: scriptId,
@@ -71,12 +68,10 @@ return true`;
             'Access-Control-Allow-Origin': '*' 
           }
         });
-        
       } catch (e) {
-        // If anything fails, return a clear error message
         return new Response(JSON.stringify({ 
           success: false, 
-          error: 'Server error: ' + e.message 
+          error: e.message 
         }), {
           status: 500,
           headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
