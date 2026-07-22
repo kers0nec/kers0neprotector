@@ -5,70 +5,63 @@ export default {
     const path = url.pathname;
 
     // ============================================================
-    // LOADER ROUTE - MUST BE FIRST
+    // LOADER ROUTE - Returns Lua code that Roblox can execute
     // ============================================================
     if (path.startsWith('/loader/')) {
       const scriptId = path.replace('/loader/', '');
       const key = url.searchParams.get('key');
       const domain = 'https://kers0neprotector.pages.dev';
       
-      try {
-        // Get scripts from KV or localStorage (via API)
-        // For now, return a simple test script
-        const scriptContent = `
--- KERS0NE PROTECTION - Obfuscated Script
+      // THIS IS THE LUA CODE THAT WILL BE EXECUTED
+      const luaScript = `
+-- KERS0NE PROTECTION - Protected Script
 -- Script ID: ${scriptId}
--- This script is protected by KERS0NE PROTECTION
+-- Domain: ${domain}
 
-print("Script loaded successfully!")
-print("Script ID: ${scriptId}")
-print("Domain: ${domain}")
+print("✅ KERS0NE PROTECTION loaded!")
+print("📜 Script ID: ${scriptId}")
 
--- Your protected code goes here
--- This is a placeholder for the obfuscated script
+-- Your protected script code goes here
+-- This is a placeholder that works
 
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+print("👤 Local Player: " .. tostring(LocalPlayer))
+
+-- Main script logic
 local function main()
-    print("Hello from protected script!")
+    print("🚀 Script is running!")
+    -- Add your actual script logic here
     return true
 end
 
+-- Execute main
 main()
-        `;
 
-        // Check if FFA mode (no key required) - you can store this in KV
-        // For now, just return the script
-        return new Response(scriptContent, {
-          headers: {
-            'Content-Type': 'text/plain',
-            'Cache-Control': 'no-store, no-cache, must-revalidate',
-            'Access-Control-Allow-Origin': '*'
-          }
-        });
-      } catch (e) {
-        return new Response(`-- Error loading script: ${e.message}`, {
-          status: 500,
-          headers: { 'Content-Type': 'text/plain' }
-        });
-      }
+print("✅ Script execution complete!")
+`;
+
+      return new Response(luaScript, {
+        headers: {
+          'Content-Type': 'text/plain',
+          'Cache-Control': 'no-store, no-cache, must-revalidate',
+          'Access-Control-Allow-Origin': '*'
+        }
+      });
     }
 
     // ============================================================
-    // SCRIPT ROUTE - Serves the actual script content
+    // SCRIPT ROUTE - Raw script content
     // ============================================================
     if (path.startsWith('/script/')) {
       const scriptId = path.replace('/script/', '');
       
-      // Return the script content
       return new Response(`
--- KERS0NE PROTECTION - Script Content
+-- KERS0NE PROTECTION - Raw Script
 -- Script ID: ${scriptId}
 
-print("Script loaded from /script/ endpoint")
-print("ID: ${scriptId}")
-
--- Your obfuscated code goes here
--- This is a placeholder
-
+print("Raw script loaded for: ${scriptId}")
 return true
       `, {
         headers: {
@@ -101,7 +94,7 @@ return true
     // ============================================================
     // SERVE STATIC FILES
     // ============================================================
-    if (path === '/' || path === '/index.html' || path === '/dashboard.html') {
+    if (path === '/' || path === '/index.html' || path === '/dashboard.html' || path === '/callback.html') {
       return env.ASSETS.fetch(request);
     }
 
@@ -125,8 +118,8 @@ return true
     }
 
     // ============================================================
-    // FALLBACK - Return 404 for unknown routes
+    // FALLBACK
     // ============================================================
-    return new Response('Not found', { status: 404 });
+    return env.ASSETS.fetch(request);
   }
 };
