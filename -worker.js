@@ -1,8 +1,9 @@
-// _worker.js – KERSFORGE (NO VALIDATION)
+// _worker.js – KERSFORGE (ABSOLUTELY NO VALIDATION)
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const path = url.pathname;
+    const method = request.method;
 
     // ============================================================
     // LOADER – RETURNS YOUR SAVED SCRIPT
@@ -46,27 +47,39 @@ return true`;
     }
 
     // ============================================================
-    // API - CREATE SCRIPT (NO VALIDATION)
+    // API - CREATE SCRIPT (ABSOLUTELY NO VALIDATION)
     // ============================================================
-    if (path === '/api/scripts' && request.method === 'POST') {
+    if (path === '/api/scripts' && method === 'POST') {
       try {
+        // Read the raw request body
         const body = await request.json();
+        
+        // Generate a random script ID
         const scriptId = 'script_' + crypto.randomUUID().replace(/-/g, '').substring(0, 12);
 
         // In production: save to KV
         // await env.KERSFORGE_KV.put(scriptId, body.code);
 
+        // Return success with the new ID
         return new Response(JSON.stringify({
           success: true,
           id: scriptId,
           loaderUrl: `${url.origin}/api/public/loaders/${scriptId}/lua`
         }), {
-          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+          headers: { 
+            'Content-Type': 'application/json', 
+            'Access-Control-Allow-Origin': '*' 
+          }
         });
+        
       } catch (e) {
-        return new Response(JSON.stringify({ success: false, error: e.message }), {
+        // If anything fails, return a clear error message
+        return new Response(JSON.stringify({ 
+          success: false, 
+          error: 'Server error: ' + e.message 
+        }), {
           status: 500,
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
         });
       }
     }
@@ -88,7 +101,7 @@ return true`;
     // ============================================================
     // API - GENERATE KEY
     // ============================================================
-    if (path === '/api/keys' && request.method === 'POST') {
+    if (path === '/api/keys' && method === 'POST') {
       const key = 'KF-' + Array.from({length: 16}, () =>
         'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'[Math.floor(Math.random() * 36)]
       ).join('');
@@ -100,7 +113,7 @@ return true`;
     // ============================================================
     // API - BAN HWID
     // ============================================================
-    if (path === '/api/hwid/ban' && request.method === 'POST') {
+    if (path === '/api/hwid/ban' && method === 'POST') {
       try {
         const body = await request.json();
         return new Response(JSON.stringify({ success: true, hwid: body.hwid }), {
@@ -109,7 +122,7 @@ return true`;
       } catch (e) {
         return new Response(JSON.stringify({ success: false, error: e.message }), {
           status: 500,
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
         });
       }
     }
@@ -117,7 +130,7 @@ return true`;
     // ============================================================
     // API - UNBAN HWID
     // ============================================================
-    if (path === '/api/hwid/unban' && request.method === 'POST') {
+    if (path === '/api/hwid/unban' && method === 'POST') {
       try {
         const body = await request.json();
         return new Response(JSON.stringify({ success: true, hwid: body.hwid }), {
@@ -126,7 +139,7 @@ return true`;
       } catch (e) {
         return new Response(JSON.stringify({ success: false, error: e.message }), {
           status: 500,
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
         });
       }
     }
