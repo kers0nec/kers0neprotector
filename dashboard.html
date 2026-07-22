@@ -180,7 +180,6 @@
             </div>
         </div>
 
-        <!-- VIEW: SCRIPTS -->
         <div id="view-scripts" class="view active">
             <div class="card">
                 <h3>Your Scripts</h3>
@@ -189,7 +188,6 @@
             <button class="btn btn-primary" onclick="switchView('view-create')">+ New Script</button>
         </div>
 
-        <!-- VIEW: CREATE SCRIPT -->
         <div id="view-create" class="view">
             <div class="card">
                 <h3>Create Script</h3>
@@ -200,14 +198,13 @@
                     <div class="subtext">Supports .lua, .txt files</div>
                 </div>
                 <input type="file" id="fileInput" accept=".lua,.txt" style="display:none" onchange="handleFileUpload(event)">
-                <textarea id="scriptInput" rows="6" placeholder="-- Or paste your Lua script here..."></textarea>
-                <button class="btn btn-primary" onclick="createScript()">Save Script</button>
-                <div id="createStatus" class="status">Ready</div>
+                <textarea id="scriptInput" rows="6" placeholder="-- Paste your Lua script here..."></textarea>
+                <button class="btn btn-primary" onclick="saveScript()">Save Script</button>
+                <div id="saveStatus" class="status">Ready</div>
             </div>
             <button class="btn btn-outline" onclick="switchView('view-scripts')">Back to Scripts</button>
         </div>
 
-        <!-- VIEW: KEYS -->
         <div id="view-keys" class="view">
             <div class="card"><h3>Generate Key</h3>
                 <input type="number" id="keyDuration" placeholder="Hours (0 = permanent)">
@@ -219,7 +216,6 @@
             </div>
         </div>
 
-        <!-- VIEW: HWID BANS -->
         <div id="view-hwids" class="view">
             <div class="card"><h3>Ban HWID</h3>
                 <input type="text" id="banHwidInput" placeholder="HWID to ban">
@@ -368,10 +364,10 @@ function renderBanned() {
     container.innerHTML = html;
 }
 
-async function createScript() {
+async function saveScript() {
     const name = document.getElementById('scriptName').value.trim();
     const code = document.getElementById('scriptInput').value;
-    const status = document.getElementById('createStatus');
+    const status = document.getElementById('saveStatus');
     
     if (!name) { status.textContent = 'Enter a script name.'; status.className = 'status error'; return; }
     if (!code.trim()) { status.textContent = 'Paste or upload a script.'; status.className = 'status error'; return; }
