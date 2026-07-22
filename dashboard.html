@@ -7,7 +7,7 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Segoe UI', sans-serif; background: #09090b; color: #f8fafc; padding: 20px; }
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.08); flex-wrap: wrap; gap: 15px; }
         .logo { font-size: 24px; font-weight: 800; }
         .logo span { color: #6366f1; }
         .user { display: flex; align-items: center; gap: 12px; }
@@ -19,16 +19,24 @@
         .btn-danger { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.2); padding: 10px 20px; border-radius: 10px; border: none; font-weight: 600; cursor: pointer; }
         .btn-danger:hover { background: rgba(239,68,68,0.25); }
         .btn-outline { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.08); color: white; padding: 10px 20px; border-radius: 10px; font-weight: 600; cursor: pointer; }
-        input, textarea { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); color: white; padding: 12px; border-radius: 10px; margin-bottom: 12px; }
-        .loadstring-box { background: rgba(0,0,0,0.3); border: 1px dashed rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; font-family: monospace; font-size: 12px; color: #6366f1; word-break: break-all; cursor: pointer; margin: 8px 0; }
+        .btn-outline:hover { border-color: #6366f1; color: #6366f1; }
+        input, textarea { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); color: white; padding: 12px; border-radius: 10px; margin-bottom: 12px; font-family: 'Segoe UI', sans-serif; font-size: 13px; }
+        textarea { font-family: 'Courier New', monospace; resize: vertical; min-height: 100px; }
+        input:focus, textarea:focus { outline: none; border-color: #6366f1; }
+        .loadstring-box { background: rgba(0,0,0,0.3); border: 1px dashed rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; font-family: 'Courier New', monospace; font-size: 12px; color: #6366f1; word-break: break-all; cursor: pointer; margin: 8px 0; }
         .badge { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 6px; display: inline-block; }
         .badge-active { background: rgba(16,185,129,0.15); color: #10b981; }
         .badge-disabled { background: rgba(239,68,68,0.15); color: #ef4444; }
+        .badge-ffa { background: rgba(245,158,11,0.15); color: #f59e0b; }
         .nav { display: flex; gap: 10px; margin: 20px 0; flex-wrap: wrap; }
-        .nav button { background: none; border: none; color: #9ca3af; padding: 10px 16px; border-radius: 8px; cursor: pointer; font-weight: 500; }
+        .nav button { background: none; border: none; color: #9ca3af; padding: 10px 16px; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 14px; }
         .nav button.active { background: rgba(99,102,241,0.15); color: #6366f1; }
         .view { display: none; }
         .view.active { display: block; }
+        .status { margin-top: 10px; font-size: 13px; color: #9ca3af; }
+        .status.success { color: #10b981; }
+        .status.error { color: #ef4444; }
+        .flex { display: flex; gap: 10px; flex-wrap: wrap; }
     </style>
 </head>
 <body>
@@ -52,7 +60,7 @@
 <!-- VIEW: SCRIPTS -->
 <div id="view-scripts" class="view active">
     <div class="card">
-        <h3>Your Scripts</h3>
+        <h3 style="margin-bottom:15px;">Your Scripts</h3>
         <div id="scriptsList" class="grid"></div>
     </div>
     <button class="btn" onclick="switchView('view-obfuscator')">+ New Script</button>
@@ -61,71 +69,62 @@
 <!-- VIEW: OBFUSCATOR -->
 <div id="view-obfuscator" class="view">
     <div class="card">
-        <h3>Obfuscate Script</h3>
+        <h3 style="margin-bottom:15px;">Obfuscate Script</h3>
         <input type="text" id="scriptName" placeholder="Script Name">
         <textarea id="scriptInput" rows="6" placeholder="-- Paste your Lua script here..."></textarea>
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
             <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
-                <input type="checkbox" id="ffaModeCheck"> FFA Mode
+                <input type="checkbox" id="ffaModeCheck"> FFA Mode (no key required)
             </label>
         </div>
-        <button class="btn" onclick="obfuscateScript()">🔮 Obfuscate</button>
-        <div id="obfuscateStatus" style="margin-top:10px;font-size:13px;color:#9ca3af">Ready</div>
-        <textarea id="scriptOutput" style="margin-top:12px;min-height:100px;font-family:monospace;font-size:12px" placeholder="Obfuscated output..." readonly></textarea>
+        <button class="btn" onclick="obfuscateScript()">🔮 Obfuscate & Save</button>
+        <div id="obfuscateStatus" class="status">Ready</div>
+        <textarea id="scriptOutput" style="margin-top:12px;min-height:100px;font-family:'Courier New',monospace;font-size:12px" placeholder="Obfuscated output will appear here..." readonly></textarea>
     </div>
-    <button class="btn-outline" onclick="switchView('view-scripts')">← Back</button>
+    <button class="btn-outline" onclick="switchView('view-scripts')">← Back to Scripts</button>
 </div>
 
 <!-- VIEW: KEYS -->
 <div id="view-keys" class="view">
     <div class="card">
-        <h3>Generate Key</h3>
+        <h3 style="margin-bottom:15px;">Generate Key</h3>
         <input type="number" id="keyDuration" placeholder="Hours (0 = permanent)">
-        <input type="text" id="keyNote" placeholder="Note">
-        <button class="btn" onclick="generateKey()">🎲 Generate</button>
+        <input type="text" id="keyNote" placeholder="Note (optional)">
+        <button class="btn" onclick="generateKey()">🎲 Generate Key</button>
     </div>
-    <h3>Your Keys</h3>
+    <h3 style="margin:20px 0 10px;">Your Keys</h3>
     <div id="keysList" class="grid"></div>
 </div>
 
 <!-- VIEW: HWID BANS -->
 <div id="view-hwids" class="view">
     <div class="card">
-        <h3>Ban HWID</h3>
+        <h3 style="margin-bottom:15px;">Ban HWID</h3>
         <input type="text" id="banHwidInput" placeholder="HWID to ban">
-        <button class="btn-danger" onclick="banHwid()">Ban</button>
+        <button class="btn-danger" onclick="banHwid()">Ban HWID</button>
     </div>
-    <h3>Banned HWIDs</h3>
+    <h3 style="margin:20px 0 10px;">Banned HWIDs</h3>
     <div id="hwidList" class="grid"></div>
 </div>
 
 <script>
 // ============================================================
-// DATA (stored in localStorage for simplicity)
+// DATA (stored in localStorage)
 // ============================================================
-function getScripts() {
-    return JSON.parse(localStorage.getItem('kp_scripts') || '[]');
+function getData(key) {
+    try { return JSON.parse(localStorage.getItem('kp_' + key) || '[]'); } 
+    catch { return []; }
+}
+function setData(key, data) {
+    localStorage.setItem('kp_' + key, JSON.stringify(data));
 }
 
-function setScripts(scripts) {
-    localStorage.setItem('kp_scripts', JSON.stringify(scripts));
-}
-
-function getKeys() {
-    return JSON.parse(localStorage.getItem('kp_keys') || '[]');
-}
-
-function setKeys(keys) {
-    localStorage.setItem('kp_keys', JSON.stringify(keys));
-}
-
-function getBanned() {
-    return JSON.parse(localStorage.getItem('kp_banned') || '[]');
-}
-
-function setBanned(banned) {
-    localStorage.setItem('kp_banned', JSON.stringify(banned));
-}
+function getScripts() { return getData('scripts'); }
+function setScripts(s) { setData('scripts', s); }
+function getKeys() { return getData('keys'); }
+function setKeys(k) { setData('keys', k); }
+function getBanned() { return getData('banned'); }
+function setBanned(b) { setData('banned', b); }
 
 // ============================================================
 // RENDER FUNCTIONS
@@ -134,7 +133,7 @@ function renderScripts() {
     const scripts = getScripts();
     const container = document.getElementById('scriptsList');
     if (!scripts.length) {
-        container.innerHTML = '<div style="color:#9ca3af;padding:20px;text-align:center">No scripts yet.</div>';
+        container.innerHTML = '<div style="color:#9ca3af;padding:30px;text-align:center">No scripts yet. Create one with the Obfuscator.</div>';
         return;
     }
     let html = '';
@@ -145,10 +144,12 @@ function renderScripts() {
             <div style="color:#9ca3af;font-size:12px">ID: ${s.id}</div>
             <div style="margin:8px 0">
                 <span class="badge ${statusClass}">${s.status}</span>
-                ${s.ffaMode ? '<span class="badge" style="background:rgba(245,158,11,0.15);color:#f59e0b">FFA</span>' : ''}
+                ${s.ffaMode ? '<span class="badge badge-ffa">FFA</span>' : ''}
             </div>
             <div class="loadstring-box" onclick="copyText(this)">loadstring(game:HttpGet("https://kers0neprotector.pages.dev/loader/${s.id}"))()</div>
-            <button class="btn-danger" onclick="deleteScript('${s.id}')" style="font-size:12px;padding:6px 12px">Delete</button>
+            <div class="flex">
+                <button class="btn-danger" onclick="deleteScript('${s.id}')" style="font-size:12px;padding:6px 12px">Delete</button>
+            </div>
         </div>`;
     }
     container.innerHTML = html;
@@ -158,14 +159,15 @@ function renderKeys() {
     const keys = getKeys();
     const container = document.getElementById('keysList');
     if (!keys.length) {
-        container.innerHTML = '<div style="color:#9ca3af;padding:20px;text-align:center">No keys yet.</div>';
+        container.innerHTML = '<div style="color:#9ca3af;padding:30px;text-align:center">No keys generated yet.</div>';
         return;
     }
     let html = '';
     for (const k of keys) {
         html += `<div class="card">
-            <div style="font-family:monospace;font-size:13px;color:#6366f1">${k.key}</div>
+            <div style="font-family:'Courier New',monospace;font-size:14px;color:#6366f1;font-weight:700">${k.key}</div>
             <div style="color:#9ca3af;font-size:12px">${k.note || 'No note'}</div>
+            <div style="color:#9ca3af;font-size:12px">${k.durationHours ? k.durationHours + 'h' : 'Permanent'}</div>
             <button class="btn-danger" onclick="deleteKey('${k.key}')" style="font-size:12px;padding:6px 12px;margin-top:8px">Delete</button>
         </div>`;
     }
@@ -176,13 +178,13 @@ function renderBanned() {
     const banned = getBanned();
     const container = document.getElementById('hwidList');
     if (!banned.length) {
-        container.innerHTML = '<div style="color:#9ca3af;padding:20px;text-align:center">No banned HWIDs.</div>';
+        container.innerHTML = '<div style="color:#9ca3af;padding:30px;text-align:center">No banned HWIDs.</div>';
         return;
     }
     let html = '';
     for (const h of banned) {
         html += `<div class="card">
-            <div style="font-family:monospace;font-size:13px;color:#ef4444">${h.hwid}</div>
+            <div style="font-family:'Courier New',monospace;font-size:13px;color:#ef4444;font-weight:700">${h.hwid}</div>
             <button class="btn-outline" onclick="unbanHwid('${h.hwid}')" style="font-size:12px;padding:6px 12px;margin-top:8px">Unban</button>
         </div>`;
     }
@@ -198,10 +200,12 @@ async function obfuscateScript() {
     const status = document.getElementById('obfuscateStatus');
     const output = document.getElementById('scriptOutput');
     
-    if (!name) { status.textContent = '❌ Enter a script name.'; return; }
-    if (!code.trim()) { status.textContent = '❌ Paste a script.'; return; }
+    if (!name) { status.textContent = '❌ Enter a script name.'; status.className = 'status error'; return; }
+    if (!code.trim()) { status.textContent = '❌ Paste a script to obfuscate.'; status.className = 'status error'; return; }
     
     status.textContent = '⏳ Obfuscating...';
+    status.className = 'status';
+    output.value = '';
     
     try {
         const formData = new FormData();
@@ -215,7 +219,10 @@ async function obfuscateScript() {
             body: formData
         });
         
-        if (!response.ok) throw new Error('Obfuscation failed: ' + response.status);
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText || 'Obfuscation failed (status: ' + response.status + ')');
+        }
         
         const result = await response.text();
         output.value = result;
@@ -232,12 +239,15 @@ async function obfuscateScript() {
         scripts.unshift(newScript);
         setScripts(scripts);
         
-        status.textContent = '✅ Saved!';
+        status.textContent = '✅ Obfuscated and saved!';
+        status.className = 'status success';
         document.getElementById('scriptName').value = '';
         document.getElementById('scriptInput').value = '';
+        document.getElementById('ffaModeCheck').checked = false;
         renderScripts();
     } catch (e) {
         status.textContent = '❌ Error: ' + e.message;
+        status.className = 'status error';
     }
 }
 
@@ -251,7 +261,7 @@ function deleteScript(id) {
 
 function generateKey() {
     const durationHours = parseInt(document.getElementById('keyDuration').value) || 0;
-    const note = document.getElementById('keyNote').value;
+    const note = document.getElementById('keyNote').value.trim();
     const key = 'KEY_' + Math.random().toString(36).substring(2, 10).toUpperCase();
     const keys = getKeys();
     keys.push({
@@ -276,10 +286,10 @@ function deleteKey(key) {
 
 function banHwid() {
     const hwid = document.getElementById('banHwidInput').value.trim();
-    if (!hwid) return alert('Enter an HWID.');
+    if (!hwid) return alert('Enter an HWID to ban.');
     const banned = getBanned();
     if (!banned.find(b => b.hwid === hwid)) {
-        banned.push({ hwid: hwid });
+        banned.push({ hwid: hwid, bannedAt: Date.now() });
         setBanned(banned);
     }
     document.getElementById('banHwidInput').value = '';
@@ -299,6 +309,12 @@ function copyText(el) {
     navigator.clipboard.writeText(text).then(() => {
         el.style.borderColor = '#10b981';
         setTimeout(() => el.style.borderColor = '', 1500);
+    }).catch(() => {
+        const range = document.createRange();
+        range.selectNode(el);
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange(range);
+        document.execCommand('copy');
     });
 }
 
@@ -324,6 +340,8 @@ function checkLogin() {
     const user = localStorage.getItem('kp_user');
     if (user) {
         document.getElementById('username').textContent = user;
+    } else {
+        window.location.href = '/';
     }
     renderScripts();
     renderKeys();
