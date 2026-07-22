@@ -3,57 +3,419 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>KERS0NE PROTECTION | Secure Dashboard</title>
+    <title>KERS0NE PROTECTION</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800&family=JetBrains+Mono:wght@400;700&display=swap');
         *{box-sizing:border-box}
         :root{--bg:#09090b;--card:rgba(18,18,20,0.65);--primary:#6366f1;--border:rgba(255,255,255,0.08);--text:#f8fafc;--muted:#9ca3af}
-        body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);margin:0;padding:0;min-height:100vh;display:flex;align-items:center;justify-content:center}
-        .glass{background:var(--card);backdrop-filter:blur(20px);border:1px solid var(--border);border-radius:20px;padding:50px;max-width:420px;width:100%;text-align:center}
-        .logo{font-size:28px;font-weight:800;color:white;margin-bottom:8px}
-        .logo span{color:var(--primary)}
-        .sub{color:var(--muted);margin-bottom:30px}
+        body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);margin:0;padding:0;min-height:100vh}
+        .glass{background:var(--card);backdrop-filter:blur(20px);border:1px solid var(--border);border-radius:20px;padding:40px}
         .btn-discord{background:#5865F2;color:white;padding:14px;border-radius:12px;border:none;font-weight:600;font-size:16px;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:center;gap:10px;text-decoration:none;transition:0.2s}
         .btn-discord:hover{background:#4752C4;transform:translateY(-2px)}
-        .footer{margin-top:20px;font-size:13px;color:#6b7280}
-        .footer a{color:var(--primary);text-decoration:none}
+        .btn-primary{background:var(--primary);color:white;padding:10px 20px;border-radius:10px;border:none;font-weight:600;cursor:pointer;transition:0.2s}
+        .btn-primary:hover{background:#4f46e5}
+        .btn-danger{background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.2);padding:10px 20px;border-radius:10px;border:none;font-weight:600;cursor:pointer;transition:0.2s}
+        .btn-danger:hover{background:rgba(239,68,68,0.25)}
+        .btn-outline{background:rgba(0,0,0,0.2);border:1px solid var(--border);color:var(--text);padding:10px 20px;border-radius:10px;border:1px solid var(--border);font-weight:600;cursor:pointer;transition:0.2s}
+        .btn-outline:hover{border-color:var(--primary);color:var(--primary)}
+        input,textarea,select{width:100%;background:rgba(0,0,0,0.3);border:1px solid var(--border);color:white;padding:12px 14px;border-radius:10px;margin-bottom:12px;font-family:'Inter',sans-serif;font-size:13px}
+        input:focus,textarea:focus,select:focus{outline:none;border-color:var(--primary)}
+        textarea{font-family:'JetBrains Mono',monospace;resize:vertical;min-height:100px}
+        .hidden{display:none !important}
+        .flex-center{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+        .sidebar{width:240px;background:var(--card);border-right:1px solid var(--border);padding:25px 18px;height:100vh;overflow-y:auto;flex-shrink:0;position:sticky;top:0}
+        .brand{font-size:20px;font-weight:800;color:white;margin-bottom:30px}
+        .brand span{color:var(--primary)}
+        .nav-item{color:var(--muted);padding:10px 14px;border-radius:8px;cursor:pointer;font-weight:500;font-size:14px;transition:0.2s;display:block;width:100%;text-align:left;background:none;border:none}
+        .nav-item:hover{color:white;background:rgba(255,255,255,0.04)}
+        .nav-item.active{background:rgba(99,102,241,0.15);color:var(--primary)}
+        .main{flex:1;padding:30px;overflow-y:auto;height:100vh}
+        .topbar{display:flex;justify-content:space-between;align-items:center;padding-bottom:20px;border-bottom:1px solid var(--border);margin-bottom:25px;flex-wrap:wrap;gap:15px}
+        .user{display:flex;align-items:center;gap:12px}
+        .avatar{width:38px;height:38px;border-radius:50%;border:2px solid var(--border)}
+        .panel{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:20px}
+        .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+        .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px}
+        .card .title{font-weight:600;font-size:15px;margin-bottom:4px}
+        .card .sub{color:var(--muted);font-size:12px}
+        .badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:6px;display:inline-block}
+        .badge-active{background:rgba(16,185,129,0.15);color:#10b981}
+        .badge-disabled{background:rgba(239,68,68,0.15);color:#ef4444}
+        .view{display:none}
+        .view.active{display:block}
+        .flex{display:flex;gap:10px;flex-wrap:wrap}
+        .loadstring-box{background:rgba(0,0,0,0.3);border:1px dashed var(--border);border-radius:8px;padding:10px 14px;font-family:monospace;font-size:12px;color:var(--primary);word-break:break-all;cursor:pointer;margin:8px 0}
+        .loadstring-box:hover{border-color:var(--primary)}
+        @media(max-width:768px){body{flex-direction:column}.sidebar{width:100%;height:auto;position:relative;border-right:none;border-bottom:1px solid var(--border)}.main{padding:15px}}
     </style>
 </head>
 <body>
-<div class="glass">
-    <div class="logo">KERS0NE<span>PROTECTION</span></div>
-    <p class="sub">Secure your Lua scripts</p>
-    
-    <!-- THIS IS THE FIXED LOGIN BUTTON -->
-    <a href="/auth/discord" class="btn-discord">
-        <svg width="24" height="24" viewBox="0 0 127.14 96.36" fill="white">
-            <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.31,60,73.31,53s5-12.74,11.43-12.74S96.1,46,96,53,91.08,65.69,84.69,65.69Z"/>
-        </svg>
-        Login with Discord
-    </a>
-    
-    <p class="footer"><a href="/terms">Terms & Privacy</a></p>
+
+<!-- ===== LOGIN SCREEN ===== -->
+<div id="loginScreen" class="flex-center">
+    <div class="glass" style="max-width:420px;width:100%;text-align:center">
+        <div style="font-size:32px;font-weight:800;color:white;margin-bottom:8px">KERS0NE<span style="color:#6366f1">PROTECTION</span></div>
+        <p style="color:var(--muted);margin-bottom:30px">Secure your Lua scripts</p>
+        <a href="/auth/discord" class="btn-discord">
+            <svg width="24" height="24" viewBox="0 0 127.14 96.36" fill="white"><path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.31,60,73.31,53s5-12.74,11.43-12.74S96.1,46,96,53,91.08,65.69,84.69,65.69Z"/></svg>
+            Login with Discord
+        </a>
+        <p style="margin-top:20px;font-size:13px;color:#6b7280"><a href="/terms" style="color:#6366f1">Terms & Privacy</a></p>
+    </div>
+</div>
+
+<!-- ===== DASHBOARD ===== -->
+<div id="dashboardScreen" class="hidden" style="display:none;width:100%;min-height:100vh">
+    <div style="display:flex;min-height:100vh">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="brand">KERS0NE<span>PROTECTION</span></div>
+            <button class="nav-item active" onclick="switchView('view-scripts')">📜 Scripts</button>
+            <button class="nav-item" onclick="switchView('view-obfuscator')">🔮 Obfuscator</button>
+            <button class="nav-item" onclick="switchView('view-keys')">🔑 Keys</button>
+            <button class="nav-item" onclick="switchView('view-hwids')">🚫 HWID Bans</button>
+            <div style="margin-top:20px;border-top:1px solid var(--border);padding-top:15px">
+                <button class="nav-item" onclick="logout()">🚪 Logout</button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main">
+            <div class="topbar">
+                <h2 style="margin:0;font-size:20px;font-weight:800" id="pageTitle">Scripts</h2>
+                <div class="user">
+                    <span id="displayUsername">Loading...</span>
+                    <img id="userAvatar" class="avatar" src="" alt="Avatar">
+                </div>
+            </div>
+
+            <!-- VIEW: SCRIPTS -->
+            <div id="view-scripts" class="view active">
+                <div class="panel">
+                    <h3 style="margin:0 0 15px">Your Scripts</h3>
+                    <div id="scriptsList" class="grid"></div>
+                </div>
+                <button class="btn-primary" onclick="switchView('view-obfuscator')">+ New Script</button>
+            </div>
+
+            <!-- VIEW: OBFUSCATOR -->
+            <div id="view-obfuscator" class="view">
+                <div class="panel">
+                    <h3 style="margin:0 0 15px">Obfuscate Script</h3>
+                    <input type="text" id="scriptName" placeholder="Script Name">
+                    <textarea id="scriptInput" rows="8" placeholder="-- Paste your Lua script here..."></textarea>
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+                        <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
+                            <input type="checkbox" id="ffaModeCheck"> FFA Mode
+                        </label>
+                        <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;color:#c4b5fd">
+                            <input type="checkbox" id="compressModeCheck" style="accent-color:#8b5cf6"> Compress
+                        </label>
+                    </div>
+                    <button class="btn-primary" onclick="obfuscateScript()">🔮 Obfuscate & Save</button>
+                    <div id="obfuscateStatus" style="margin-top:10px;font-size:13px;color:var(--muted)">Ready</div>
+                    <textarea id="scriptOutput" style="margin-top:12px;min-height:100px;font-family:monospace;font-size:12px" placeholder="Obfuscated output..." readonly></textarea>
+                </div>
+                <button class="btn-outline" onclick="switchView('view-scripts')">← Back to Scripts</button>
+            </div>
+
+            <!-- VIEW: KEYS -->
+            <div id="view-keys" class="view">
+                <div class="panel">
+                    <h3 style="margin:0 0 15px">Generate Key</h3>
+                    <input type="number" id="keyDuration" placeholder="Hours (0 = permanent)">
+                    <input type="text" id="keyNote" placeholder="Note (optional)">
+                    <button class="btn-primary" onclick="generateKey()">🎲 Generate</button>
+                </div>
+                <h3>Your Keys</h3>
+                <div id="keysList" class="grid"></div>
+            </div>
+
+            <!-- VIEW: HWID BANS -->
+            <div id="view-hwids" class="view">
+                <div class="panel">
+                    <h3 style="margin:0 0 15px">Ban HWID</h3>
+                    <input type="text" id="banHwidInput" placeholder="HWID to ban">
+                    <button class="btn-danger" onclick="banHwid()">Ban</button>
+                </div>
+                <h3>Banned HWIDs</h3>
+                <div id="hwidList" class="grid"></div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
-// Check if user is already logged in
-const params = new URLSearchParams(window.location.search);
-const user = params.get('user');
-const id = params.get('id');
-const avatar = params.get('avatar');
+// ============================================================
+// AUTH HANDLING
+// ============================================================
+function handleAuth() {
+    const params = new URLSearchParams(window.location.search);
+    const user = params.get('user');
+    const id = params.get('id');
+    const avatar = params.get('avatar');
 
-if (user && id) {
-    localStorage.setItem('kp_user', user);
-    localStorage.setItem('kp_id', id);
-    localStorage.setItem('kp_avatar', avatar || '');
-    window.location.href = '/dashboard';
+    if (user && id) {
+        localStorage.setItem('kp_user', user);
+        localStorage.setItem('kp_id', id);
+        localStorage.setItem('kp_avatar', avatar || '');
+        window.history.replaceState({}, document.title, '/');
+        showDashboard();
+        return;
+    }
+
+    const storedUser = localStorage.getItem('kp_user');
+    const storedId = localStorage.getItem('kp_id');
+    if (storedUser && storedId) {
+        showDashboard();
+    } else {
+        showLogin();
+    }
 }
 
-// If user is stored, go to dashboard
-if (localStorage.getItem('kp_user') && localStorage.getItem('kp_id')) {
-    window.location.href = '/dashboard';
+function showLogin() {
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('dashboardScreen').style.display = 'none';
 }
+
+function showDashboard() {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('dashboardScreen').style.display = 'block';
+    document.getElementById('displayUsername').textContent = localStorage.getItem('kp_user') || 'User';
+    const avatar = localStorage.getItem('kp_avatar');
+    document.getElementById('userAvatar').src = avatar ? 
+        `https://cdn.discordapp.com/avatars/${localStorage.getItem('kp_id')}/${avatar}.png` : 
+        'https://cdn.discordapp.com/embed/avatars/0.png';
+    loadData();
+}
+
+function logout() {
+    localStorage.clear();
+    window.location.href = '/';
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function switchView(viewId) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById(viewId).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    const titles = {
+        'view-scripts': 'Scripts',
+        'view-obfuscator': 'Obfuscator',
+        'view-keys': 'Keys',
+        'view-hwids': 'HWID Bans'
+    };
+    document.getElementById('pageTitle').textContent = titles[viewId] || 'Dashboard';
+}
+
+// ============================================================
+// DATA
+// ============================================================
+let scripts = [];
+let keys = [];
+let bannedHWIDs = [];
+
+async function loadData() {
+    try {
+        const res = await fetch('/api/data');
+        const data = await res.json();
+        if (data.error) return;
+        scripts = data.scripts || [];
+        keys = data.keys || [];
+        bannedHWIDs = data.bannedHWIDs || [];
+        renderScripts();
+        renderKeys();
+        renderHwidList();
+    } catch(e) { console.error(e); }
+}
+
+function renderScripts() {
+    const container = document.getElementById('scriptsList');
+    if (!scripts.length) {
+        container.innerHTML = '<div style="color:var(--muted);padding:20px;text-align:center">No scripts yet.</div>';
+        return;
+    }
+    let html = '';
+    for (const s of scripts) {
+        const statusClass = s.status === 'active' ? 'badge-active' : 'badge-disabled';
+        html += `<div class="card">
+            <div class="title">${s.name}</div>
+            <div class="sub">ID: ${s.id}</div>
+            <div style="margin:8px 0">
+                <span class="badge ${statusClass}">${s.status}</span>
+                ${s.ffaMode ? '<span class="badge" style="background:rgba(245,158,11,0.15);color:#f59e0b">FFA</span>' : ''}
+                ${s.compressMode ? '<span class="badge" style="background:rgba(139,92,246,0.15);color:#c4b5fd">Compressed</span>' : ''}
+            </div>
+            <div class="loadstring-box" onclick="copyText(this)">loadstring(game:HttpGet("https://kers0neprotector.pages.dev/loader/${s.id}"))()</div>
+            <div class="flex">
+                <button class="btn-outline" onclick="deleteScript('${s.id}')" style="font-size:12px;padding:6px 12px">Delete</button>
+            </div>
+        </div>`;
+    }
+    container.innerHTML = html;
+}
+
+function renderKeys() {
+    const container = document.getElementById('keysList');
+    if (!keys.length) {
+        container.innerHTML = '<div style="color:var(--muted);padding:20px;text-align:center">No keys yet.</div>';
+        return;
+    }
+    let html = '';
+    for (const k of keys) {
+        html += `<div class="card">
+            <div style="font-family:monospace;font-size:13px;color:var(--primary)">${k.key}</div>
+            <div class="sub">${k.note || 'No note'}</div>
+            <button class="btn-danger" style="font-size:12px;padding:6px 12px;margin-top:8px" onclick="deleteKey('${k.key}')">Delete</button>
+        </div>`;
+    }
+    container.innerHTML = html;
+}
+
+function renderHwidList() {
+    const container = document.getElementById('hwidList');
+    if (!bannedHWIDs.length) {
+        container.innerHTML = '<div style="color:var(--muted);padding:20px;text-align:center">No banned HWIDs.</div>';
+        return;
+    }
+    let html = '';
+    for (const h of bannedHWIDs) {
+        html += `<div class="card">
+            <div style="font-family:monospace;font-size:13px;color:#ef4444">${h.hwid}</div>
+            <button class="btn-outline" style="font-size:12px;padding:6px 12px;margin-top:8px" onclick="unbanHwid('${h.hwid}')">Unban</button>
+        </div>`;
+    }
+    container.innerHTML = html;
+}
+
+// ============================================================
+// ACTIONS
+// ============================================================
+async function obfuscateScript() {
+    const name = document.getElementById('scriptName').value.trim();
+    const code = document.getElementById('scriptInput').value;
+    const status = document.getElementById('obfuscateStatus');
+    const output = document.getElementById('scriptOutput');
+    
+    if (!name) { status.textContent = '❌ Enter a script name.'; return; }
+    if (!code.trim()) { status.textContent = '❌ Paste a script.'; return; }
+    
+    status.textContent = '⏳ Obfuscating...';
+    
+    try {
+        const formData = new FormData();
+        const blob = new Blob([code], { type: 'text/plain' });
+        formData.append('file', blob, 'script.lua');
+        formData.append('anti_env_logger', 'true');
+        
+        const response = await fetch('https://kers0ne-0bf.lovable.app/api/public/obfuscate', {
+            method: 'POST',
+            headers: { 'X-API-Key': 'kers0neontop123' },
+            body: formData
+        });
+        
+        if (!response.ok) throw new Error('Obfuscation failed');
+        
+        const result = await response.text();
+        output.value = result;
+        
+        // Save to scripts
+        const newScript = {
+            id: 'script_' + Math.random().toString(36).substring(2, 10),
+            name: name,
+            code: result,
+            ffaMode: document.getElementById('ffaModeCheck').checked,
+            compressMode: document.getElementById('compressModeCheck').checked,
+            status: 'active'
+        };
+        
+        await fetch('/api/create-script', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newScript)
+        });
+        
+        status.textContent = '✅ Saved!';
+        document.getElementById('scriptName').value = '';
+        document.getElementById('scriptInput').value = '';
+        loadData();
+    } catch (e) {
+        status.textContent = '❌ Error: ' + e.message;
+    }
+}
+
+async function deleteScript(id) {
+    if (!confirm('Delete this script?')) return;
+    await fetch('/api/delete-script', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id })
+    });
+    loadData();
+}
+
+async function generateKey() {
+    const durationHours = parseInt(document.getElementById('keyDuration').value) || 0;
+    const note = document.getElementById('keyNote').value;
+    const res = await fetch('/api/generate-key', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ durationHours, note })
+    });
+    const data = await res.json();
+    if (data.success) {
+        document.getElementById('keyDuration').value = '';
+        document.getElementById('keyNote').value = '';
+        loadData();
+    }
+}
+
+async function deleteKey(key) {
+    if (!confirm('Delete this key?')) return;
+    await fetch('/api/delete-key', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key })
+    });
+    loadData();
+}
+
+async function banHwid() {
+    const hwid = document.getElementById('banHwidInput').value.trim();
+    if (!hwid) return alert('Enter an HWID.');
+    await fetch('/api/ban-hwid', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ hwid })
+    });
+    document.getElementById('banHwidInput').value = '';
+    loadData();
+}
+
+async function unbanHwid(hwid) {
+    if (!confirm('Unban this HWID?')) return;
+    await fetch('/api/unban-hwid', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ hwid })
+    });
+    loadData();
+}
+
+function copyText(el) {
+    const text = el.textContent.trim();
+    navigator.clipboard.writeText(text).then(() => {
+        el.style.borderColor = '#10b981';
+        setTimeout(() => el.style.borderColor = '', 1500);
+    });
+}
+
+// ============================================================
+// INIT
+// ============================================================
+handleAuth();
 </script>
 </body>
 </html>
