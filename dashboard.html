@@ -364,27 +364,46 @@ function renderBanned() {
     container.innerHTML = html;
 }
 
+// ============================================================
+// SAVE SCRIPT - NO VALIDATION
+// ============================================================
 async function saveScript() {
     const name = document.getElementById('scriptName').value.trim();
     const code = document.getElementById('scriptInput').value;
     const status = document.getElementById('saveStatus');
     
-    if (!name) { status.textContent = 'Enter a script name.'; status.className = 'status error'; return; }
-    if (!code.trim()) { status.textContent = 'Paste or upload a script.'; status.className = 'status error'; return; }
+    if (!name) { 
+        status.textContent = 'Enter a script name.'; 
+        status.className = 'status error'; 
+        return; 
+    }
+    if (!code.trim()) { 
+        status.textContent = 'Paste or upload a script.'; 
+        status.className = 'status error'; 
+        return; 
+    }
     
     status.textContent = 'Saving...';
     status.className = 'status';
     
     try {
+        // Send the script directly - NO VALIDATION
         const response = await fetch('/api/scripts', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, code })
+            body: JSON.stringify({ 
+                name: name, 
+                code: code 
+            })
         });
+        
         const data = await response.json();
         
-        if (!data.success) throw new Error(data.error || 'Failed to save script');
+        if (!data.success) {
+            throw new Error(data.error || 'Unknown error');
+        }
         
+        // Save to local storage
         const scripts = getScripts();
         scripts.unshift({
             id: data.id,
@@ -401,9 +420,11 @@ async function saveScript() {
         document.getElementById('scriptInput').value = '';
         renderScripts();
         switchView('view-scripts');
+        
     } catch (e) {
         status.textContent = 'Error: ' + e.message;
         status.className = 'status error';
+        console.error('Save error:', e);
     }
 }
 
