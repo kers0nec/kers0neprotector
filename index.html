@@ -3,191 +3,311 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KERS0NE PROTECTION - Login</title>
+    <title>KERSFORGE — Script Protection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { 
-            font-family: 'Segoe UI', sans-serif; 
-            background: #09090b; 
-            color: #f8fafc; 
-            min-height: 100vh; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-image: radial-gradient(ellipse at 50% 0%, rgba(180, 0, 0, 0.08) 0%, transparent 60%);
         }
         .container {
-            background: rgba(18, 18, 20, 0.65);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 20px;
-            padding: 50px 40px;
-            max-width: 400px;
+            background: rgba(10, 10, 10, 0.92);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(180, 0, 0, 0.2);
+            border-radius: 24px;
+            padding: 48px 40px;
+            max-width: 440px;
             width: 100%;
-            text-align: center;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.8);
         }
-        .logo { font-size: 28px; font-weight: 800; color: white; }
-        .logo span { color: #6366f1; }
-        .sub { color: #9ca3af; margin: 8px 0 30px; }
+        .logo { font-size: 28px; font-weight: 900; text-align: center; }
+        .logo span { color: #cc0000; }
+        .sub { color: #666; text-align: center; margin: 6px 0 28px; font-size: 14px; }
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; font-size: 11px; font-weight: 700; color: #666; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
         input {
             width: 100%;
-            background: rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.08);
-            color: white;
-            padding: 14px;
-            border-radius: 10px;
-            margin-bottom: 12px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.06);
+            color: #e0e0e0;
+            padding: 14px 16px;
+            border-radius: 12px;
             font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            transition: 0.2s;
         }
-        input:focus { outline: none; border-color: #6366f1; }
-        .btn {
-            background: #6366f1;
+        input:focus { outline: none; border-color: #cc0000; box-shadow: 0 0 0 3px rgba(204, 0, 0, 0.1); }
+        input::placeholder { color: #444; }
+        .btn-primary {
+            background: #cc0000;
             color: white;
             padding: 14px;
-            border-radius: 10px;
+            border-radius: 12px;
             border: none;
-            font-weight: 600;
-            font-size: 16px;
+            font-weight: 700;
+            font-size: 15px;
             cursor: pointer;
             width: 100%;
             transition: 0.2s;
+            font-family: 'Inter', sans-serif;
         }
-        .btn:hover { background: #4f46e5; transform: translateY(-2px); }
-        .btn-outline {
+        .btn-primary:hover { background: #aa0000; transform: translateY(-1px); box-shadow: 0 8px 30px rgba(204, 0, 0, 0.25); }
+        .btn-secondary {
             background: transparent;
-            color: #9ca3af;
-            padding: 10px;
+            color: #666;
+            padding: 12px;
             border: none;
             font-size: 13px;
             cursor: pointer;
             width: 100%;
+            font-family: 'Inter', sans-serif;
+            transition: 0.2s;
         }
-        .btn-outline:hover { color: white; }
-        .error { color: #ef4444; font-size: 13px; margin-top: 8px; }
-        .success { color: #10b981; font-size: 13px; margin-top: 8px; }
-        .toggle-link { color: #6366f1; cursor: pointer; }
+        .btn-secondary:hover { color: #e0e0e0; }
+        .toggle-link { color: #cc0000; cursor: pointer; font-weight: 600; }
         .toggle-link:hover { text-decoration: underline; }
-        .hidden { display: none; }
+        .hidden { display: none !important; }
+        .msg { font-size: 13px; margin-top: 10px; padding: 10px; border-radius: 8px; text-align: center; }
+        .msg.error { background: rgba(204, 0, 0, 0.1); color: #cc0000; border: 1px solid rgba(204, 0, 0, 0.15); }
+        .msg.success { background: rgba(0, 200, 100, 0.08); color: #00cc66; border: 1px solid rgba(0, 200, 100, 0.12); }
+        .referral-box {
+            background: rgba(204, 0, 0, 0.05);
+            border: 1px solid rgba(204, 0, 0, 0.1);
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin: 12px 0;
+            font-size: 13px;
+            color: #888;
+            text-align: center;
+        }
+        .referral-box strong { color: #cc0000; }
+        .divider { display: flex; align-items: center; gap: 16px; margin: 16px 0; color: #333; font-size: 12px; }
+        .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.04); }
+        .features { display: flex; gap: 12px; justify-content: center; margin-top: 16px; flex-wrap: wrap; }
+        .features span { font-size: 11px; color: #444; background: rgba(255,255,255,0.02); padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.03); }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="logo">KERS0NE<span>PROTECTION</span></div>
-    <p class="sub" id="formTitle">Sign in to your account</p>
+    <div class="logo">KERS<span>FORGE</span></div>
+    <p class="sub" id="formTitle">Forge your scripts. Protect your work.</p>
 
     <!-- LOGIN FORM -->
     <div id="loginForm">
-        <input type="email" id="loginEmail" placeholder="Email address">
-        <input type="password" id="loginPassword" placeholder="Password">
-        <button class="btn" onclick="login()">Sign In</button>
-        <button class="btn-outline" onclick="showRegister()">Don't have an account? <span class="toggle-link">Register</span></button>
+        <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="loginEmail" placeholder="you@example.com">
+        </div>
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="loginPassword" placeholder="••••••••">
+        </div>
+        <button class="btn-primary" onclick="login()">Sign In</button>
+        <button class="btn-secondary" onclick="showRegister()">Don't have an account? <span class="toggle-link">Forge One</span></button>
+        <div id="loginMsg" class="msg hidden"></div>
     </div>
 
     <!-- REGISTER FORM -->
     <div id="registerForm" class="hidden">
-        <input type="text" id="registerUsername" placeholder="Username">
-        <input type="email" id="registerEmail" placeholder="Email address">
-        <input type="password" id="registerPassword" placeholder="Password (min 6 characters)">
-        <button class="btn" onclick="register()">Create Account</button>
-        <button class="btn-outline" onclick="showLogin()">Already have an account? <span class="toggle-link">Sign In</span></button>
+        <div class="form-group">
+            <label>Username</label>
+            <input type="text" id="registerUsername" placeholder="Choose a username">
+        </div>
+        <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="registerEmail" placeholder="you@example.com">
+        </div>
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="registerPassword" placeholder="Min 6 characters">
+        </div>
+        <div class="form-group">
+            <label>Referral Code (optional)</label>
+            <input type="text" id="registerReferral" placeholder="Enter friend's referral code">
+        </div>
+        <button class="btn-primary" onclick="register()">Forge Account</button>
+        <button class="btn-secondary" onclick="showLogin()">Already forged? <span class="toggle-link">Sign In</span></button>
+        <div id="registerMsg" class="msg hidden"></div>
+        <div id="referralDisplay" class="referral-box hidden">🔥 Invited by: <strong id="referralName">---</strong></div>
     </div>
 
-    <div id="message" class="error"></div>
+    <div class="divider">forge • protect • dominate</div>
+    <div class="features">
+        <span>⚔️ Obfuscation</span>
+        <span>🔑 Key System</span>
+        <span>🛡️ Anti-Deobfuscate</span>
+        <span>👑 Admin Panel</span>
+    </div>
 </div>
 
 <script>
 // ============================================================
-// EMAIL AUTH (uses localStorage)
+// KERSFORGE - AUTH SYSTEM
 // ============================================================
 
+// DEFAULT OWNERS (emails)
+const OWNERS = ['admin@kersforge.com'];
+
 function getUsers() {
-    try { return JSON.parse(localStorage.getItem('kp_users') || '[]'); } 
-    catch { return []; }
+    try { return JSON.parse(localStorage.getItem('kf_users') || '[]'); } catch { return []; }
+}
+function saveUsers(u) { localStorage.setItem('kf_users', JSON.stringify(u)); }
+
+function getReferrals() {
+    try { return JSON.parse(localStorage.getItem('kf_referrals') || '{}'); } catch { return {}; }
+}
+function saveReferrals(r) { localStorage.setItem('kf_referrals', JSON.stringify(r)); }
+
+function getCredits() {
+    try { return JSON.parse(localStorage.getItem('kf_credits') || '{}'); } catch { return {}; }
+}
+function saveCredits(c) { localStorage.setItem('kf_credits', JSON.stringify(c)); }
+
+function isOwner(email) {
+    // Check hardcoded owners + stored owners
+    let storedOwners = [];
+    try { storedOwners = JSON.parse(localStorage.getItem('kf_owners') || '[]'); } catch(e) {}
+    const allOwners = [...OWNERS, ...storedOwners];
+    return allOwners.includes(email);
 }
 
-function saveUsers(users) {
-    localStorage.setItem('kp_users', JSON.stringify(users));
+function showMsg(id, text, type) {
+    const el = document.getElementById(id);
+    el.textContent = text;
+    el.className = 'msg ' + type;
+    el.classList.remove('hidden');
 }
+
+function hideMsg(id) { document.getElementById(id).classList.add('hidden'); }
 
 function showLogin() {
     document.getElementById('loginForm').classList.remove('hidden');
     document.getElementById('registerForm').classList.add('hidden');
-    document.getElementById('formTitle').textContent = 'Sign in to your account';
-    document.getElementById('message').textContent = '';
+    document.getElementById('formTitle').textContent = 'Forge your scripts. Protect your work.';
+    hideMsg('loginMsg');
+    hideMsg('registerMsg');
+    document.getElementById('referralDisplay').classList.add('hidden');
 }
 
 function showRegister() {
     document.getElementById('loginForm').classList.add('hidden');
     document.getElementById('registerForm').classList.remove('hidden');
-    document.getElementById('formTitle').textContent = 'Create your account';
-    document.getElementById('message').textContent = '';
+    document.getElementById('formTitle').textContent = 'Create your forge';
+    hideMsg('loginMsg');
+    hideMsg('registerMsg');
+    
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get('ref');
+    if (ref) {
+        document.getElementById('registerReferral').value = ref;
+        const users = getUsers();
+        const referrer = users.find(u => u.referralCode === ref);
+        if (referrer) {
+            document.getElementById('referralDisplay').classList.remove('hidden');
+            document.getElementById('referralName').textContent = referrer.username;
+        }
+    }
+}
+
+function generateReferralCode() {
+    return 'KF-' + Math.random().toString(36).substring(2, 8).toUpperCase();
 }
 
 function register() {
     const username = document.getElementById('registerUsername').value.trim();
     const email = document.getElementById('registerEmail').value.trim();
     const password = document.getElementById('registerPassword').value;
-    const msg = document.getElementById('message');
+    const referralCode = document.getElementById('registerReferral').value.trim().toUpperCase();
 
-    if (!username) { msg.textContent = '❌ Enter a username.'; return; }
-    if (!email) { msg.textContent = '❌ Enter an email.'; return; }
-    if (password.length < 6) { msg.textContent = '❌ Password must be at least 6 characters.'; return; }
+    if (!username) { showMsg('registerMsg', '❌ Enter a username.', 'error'); return; }
+    if (!email) { showMsg('registerMsg', '❌ Enter an email.', 'error'); return; }
+    if (password.length < 6) { showMsg('registerMsg', '❌ Password must be at least 6 characters.', 'error'); return; }
 
     let users = getUsers();
-    if (users.find(u => u.email === email)) {
-        msg.textContent = '❌ Email already registered.';
-        return;
-    }
+    if (users.find(u => u.email === email)) { showMsg('registerMsg', '❌ Email already registered.', 'error'); return; }
+    if (users.find(u => u.username === username)) { showMsg('registerMsg', '❌ Username already taken.', 'error'); return; }
 
-    users.push({
+    const newUser = {
         username: username,
         email: email,
         password: password,
+        referralCode: generateReferralCode(),
+        referredBy: null,
+        credits: 0,
         created: Date.now()
-    });
+    };
+
+    // Handle referral
+    if (referralCode) {
+        const referrer = users.find(u => u.referralCode === referralCode);
+        if (referrer) {
+            newUser.referredBy = referrer.username;
+            let credits = getCredits();
+            credits[referrer.email] = (credits[referrer.email] || 0) + 5;
+            saveCredits(credits);
+            newUser.credits = 2;
+            showMsg('registerMsg', `✅ Account forged! You got 2 credits. ${referrer.username} got 5 credits!`, 'success');
+        } else {
+            showMsg('registerMsg', '⚠️ Referral code not found. You can still join!', 'success');
+        }
+    } else {
+        showMsg('registerMsg', '✅ Account forged successfully!', 'success');
+    }
+
+    users.push(newUser);
     saveUsers(users);
-    msg.className = 'success';
-    msg.textContent = '✅ Account created! Please sign in.';
-    showLogin();
-    document.getElementById('loginEmail').value = email;
+
+    setTimeout(() => {
+        showLogin();
+        document.getElementById('loginEmail').value = email;
+    }, 1500);
 }
 
 function login() {
     const email = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value;
-    const msg = document.getElementById('message');
-
-    if (!email || !password) {
-        msg.textContent = '❌ Enter email and password.';
-        return;
-    }
-
+    if (!email || !password) { showMsg('loginMsg', '❌ Enter email and password.', 'error'); return; }
     const users = getUsers();
     const user = users.find(u => u.email === email && u.password === password);
-
-    if (!user) {
-        msg.textContent = '❌ Invalid email or password.';
-        return;
-    }
-
-    // Login successful
-    localStorage.setItem('kp_session', JSON.stringify({
+    if (!user) { showMsg('loginMsg', '❌ Invalid email or password.', 'error'); return; }
+    
+    const owner = isOwner(email);
+    
+    localStorage.setItem('kf_session', JSON.stringify({
         username: user.username,
         email: user.email,
+        credits: user.credits || 0,
+        referralCode: user.referralCode,
+        isOwner: owner,
         loggedIn: Date.now()
     }));
-    window.location.href = '/dashboard.html';
+    
+    window.location.href = owner ? '/admin.html' : '/dashboard.html';
 }
 
-// Check if already logged in
-const session = localStorage.getItem('kp_session');
+// Check session
+const session = localStorage.getItem('kf_session');
 if (session) {
     try {
         const data = JSON.parse(session);
         if (data.loggedIn && Date.now() - data.loggedIn < 86400000 * 30) {
-            window.location.href = '/dashboard.html';
+            window.location.href = data.isOwner ? '/admin.html' : '/dashboard.html';
         }
     } catch(e) {}
+}
+
+// Check for referral param
+const params = new URLSearchParams(window.location.search);
+if (params.get('ref')) {
+    showRegister();
 }
 </script>
 </body>
