@@ -81,7 +81,6 @@
         .badge-disabled { background: rgba(204, 0, 0, 0.12); color: #cc0000; }
         .badge-ffa { background: rgba(200, 150, 0, 0.12); color: #cc9900; }
         .badge-compressed { background: rgba(100, 100, 200, 0.12); color: #8888cc; }
-        .badge-protected { background: rgba(204, 0, 0, 0.08); color: #cc0000; }
         .loadstring-box {
             background: rgba(0,0,0,0.3);
             border: 1px dashed rgba(255,255,255,0.04);
@@ -209,14 +208,13 @@
                     <div class="subtext">Supports .lua, .txt files</div>
                 </div>
                 <input type="file" id="fileInput" accept=".lua,.txt" style="display:none" onchange="handleFileUpload(event)">
-                <textarea id="scriptInput" rows="6" placeholder="-- Or paste your Lua script here..."></textarea>
+                <textarea id="scriptInput" rows="6" placeholder="-- Paste your Lua script here..."></textarea>
                 <div class="flex" style="margin-bottom: 12px;">
                     <label class="checkbox-container"><input type="checkbox" id="ffaModeCheck"> FFA Mode</label>
                     <label class="checkbox-container"><input type="checkbox" id="compressModeCheck"> Compress Mode</label>
-                    <label class="checkbox-container"><input type="checkbox" id="antiDeobfuscateCheck" checked> Anti-Deobfuscate</label>
                 </div>
-                <button class="btn btn-primary" onclick="obfuscateScript()">⚔️ Forge & Save</button>
-                <div id="obfuscateStatus" class="status">Ready</div>
+                <button class="btn btn-primary" onclick="forgeScript()">⚔️ Forge & Save</button>
+                <div id="forgeStatus" class="status">Ready</div>
                 <textarea id="scriptOutput" style="margin-top:12px;min-height:120px;font-family:'JetBrains Mono',monospace;font-size:12px" placeholder="Forged output will appear here..." readonly></textarea>
             </div>
             <button class="btn btn-outline" onclick="switchView('view-scripts')">← Back to Scripts</button>
@@ -261,7 +259,7 @@
 
 <script>
 // ============================================================
-// KERSFORGE - DASHBOARD
+// KERSFORGE - DASHBOARD (CLEAN VERSION)
 // ============================================================
 
 function getSession() {
@@ -288,9 +286,6 @@ function setKeys(k) { setData('keys', k); }
 function getBanned() { return getData('banned'); }
 function setBanned(b) { setData('banned', b); }
 
-// ============================================================
-// AUTH CHECK
-// ============================================================
 function checkLogin() {
     const session = getSession();
     if (!session) { window.location.href = '/'; return; }
@@ -368,7 +363,6 @@ function renderScripts() {
                 <span class="badge ${statusClass}">${s.status}</span>
                 ${s.ffaMode ? '<span class="badge badge-ffa">FFA</span>' : ''}
                 ${s.compressMode ? '<span class="badge badge-compressed">Compressed</span>' : ''}
-                ${s.antiDeobfuscate ? '<span class="badge badge-protected">🔒 Protected</span>' : ''}
             </div>
             <div class="loadstring-box" onclick="copyText(this)">loadstring(game:HttpGet("https://kers0neprotector.pages.dev/loader/${s.id}"))()</div>
             <div class="flex">
@@ -429,79 +423,49 @@ function renderReferrals() {
 
 function copyReferralLink() { copyText(document.getElementById('referralLink')); }
 
-async function obfuscateScript() {
+// ============================================================
+// FORGE SCRIPT - NO OBFUSCATION API
+// ============================================================
+function forgeScript() {
     const name = document.getElementById('scriptName').value.trim();
     const code = document.getElementById('scriptInput').value;
-    const status = document.getElementById('obfuscateStatus');
+    const status = document.getElementById('forgeStatus');
     const output = document.getElementById('scriptOutput');
+    
     if (!name) { status.textContent = '❌ Enter a script name.'; status.className = 'status error'; return; }
     if (!code.trim()) { status.textContent = '❌ Paste or upload a script to forge.'; status.className = 'status error'; return; }
+    
     status.textContent = '⏳ Forging...';
     status.className = 'status';
     output.value = '';
+    
     try {
         const ffaMode = document.getElementById('ffaModeCheck').checked;
         const compressMode = document.getElementById('compressModeCheck').checked;
-        const antiDeobfuscate = document.getElementById('antiDeobfuscateCheck').checked;
-        let finalCode = code;
-        if (antiDeobfuscate) {
-            finalCode = `
-local function antiDeobfuscate()
-    local function checkDeobfuscator()
-        local success, result = pcall(function()
-            local env = getfenv()
-            if env and type(env) == "table" then
-                local suspicious = {"string.dump", "loadstring", "debug", "bytecode", "decompile"}
-                for _, s in ipairs(suspicious) do
-                    if env[s] then return true end
-                end
-            end
-            return false
-        end)
-        return success and result or false
-    end
-    if checkDeobfuscator() then print("skidder only") return end
-end
-antiDeobfuscate()
-${code}
-`;
-        }
-        let obfuscatedCode = finalCode;
-        if (compressMode) {
-            try {
-                const formData = new FormData();
-                const blob = new Blob([finalCode], { type: 'text/plain' });
-                formData.append('file', blob, 'script.lua');
-                formData.append('anti_env_logger', 'true');
-                const response = await fetch('https://kers0ne-0bf.lovable.app/api/public/obfuscate', {
-                    method: 'POST',
-                    headers: { 'X-API-Key': 'kers0neontop123' },
-                    body: formData
-                });
-                if (response.ok) obfuscatedCode = await response.text();
-            } catch (e) { console.log('Obfuscation API unavailable'); }
-        }
-        output.value = obfuscatedCode;
+        
+        // Use the code as-is - NO OBFUSCATION
+        const forgedCode = code;
+        output.value = forgedCode;
+        
         const scripts = getScripts();
         const newScript = {
             id: 'script_' + Math.random().toString(36).substring(2, 10),
             name: name,
-            code: obfuscatedCode,
+            code: forgedCode,
             ffaMode: ffaMode,
             compressMode: compressMode,
-            antiDeobfuscate: antiDeobfuscate,
             status: 'active',
             created: Date.now()
         };
         scripts.unshift(newScript);
         setScripts(scripts);
+        
         status.textContent = '✅ Script forged and saved!';
         status.className = 'status success';
         document.getElementById('scriptName').value = '';
         document.getElementById('scriptInput').value = '';
         document.getElementById('ffaModeCheck').checked = false;
         document.getElementById('compressModeCheck').checked = false;
-        document.getElementById('antiDeobfuscateCheck').checked = true;
         renderScripts();
     } catch (e) {
         status.textContent = '❌ Error: ' + e.message;
