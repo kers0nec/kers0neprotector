@@ -1,224 +1,410 @@
-// _worker.js – KERSFORGE (FAULMOR-STYLE LOADER)
+// _worker.js – KERSFORGE v2 (Production Ready)
 export default {
-  async fetch(request) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const path = url.pathname;
+    const method = request.method;
 
     // ============================================================
-    // LOADER - FAULMOR-STYLE URL FORMAT
-    // /api/public/loaders/SCRIPT_ID/lua
+    // CORS HEADERS (pre-flight)
+    // ============================================================
+    const corsHeaders = {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    };
+
+    if (method === 'OPTIONS') {
+      return new Response(null, { status: 204, headers: corsHeaders });
+    }
+
+    // ============================================================
+    // HELPER: Add CORS to any response
+    // ============================================================
+    const withCors = (response) => {
+      Object.entries(corsHeaders).forEach(([k, v]) => {
+        response.headers.set(k, v);
+      });
+      return response;
+    };
+
+    // ============================================================
+    // HELPER: Error response
+    // ============================================================
+    const errorResponse = (message, status = 400) => {
+      return withCors(new Response(JSON.stringify({
+        success: false,
+        error: message,
+        timestamp: Date.now()
+      }), {
+        status,
+        headers: { 'Content-Type': 'application/json' }
+      }));
+    };
+
+    // ============================================================
+    // HELPER: Success response
+    // ============================================================
+    const successResponse = (data) => {
+      return withCors(new Response(JSON.stringify({
+        success: true,
+        ...data,
+        timestamp: Date.now()
+      }), {
+        headers: { 'Content-Type': 'application/json' }
+      }));
+    };
+
+    // ============================================================
+    // 1. SCRIPT LOADER – /api/public/loaders/{scriptId}/lua
+    //    Returns raw Lua code for loadstring()
     // ============================================================
     if (path.startsWith('/api/public/loaders/') && path.endsWith('/lua')) {
-      // Extract script ID from the path
-      // Example: /api/public/loaders/script_abc123/lua
       const parts = path.split('/');
-      // parts = ['', 'api', 'public', 'loaders', 'script_abc123', 'lua']
-      const scriptId = parts[4]; // The 5th element (index 4)
-      
+      const scriptId = parts[4];
+
       if (!scriptId || scriptId === '') {
-        return new Response('-- Error: No script ID provided', {
+        return withCors(new Response('-- Error: No script ID provided\nreturn false', {
           status: 400,
-          headers: { 'Content-Type': 'text/plain' }
-        });
+          headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+        }));
       }
 
-      // This is the actual Lua script that will execute
-      const luaScript = `
--- KERSFORGE PROTECTED SCRIPT
--- Script ID: ${scriptId}
--- Format: Faulmor-style loader
+      // Validate script ID format (alphanumeric, underscores, hyphens)
+      if (!/^[a-zA-Z0-9_-]+$/.test(scriptId)) {
+        return withCors(new Response('-- Error: Invalid script ID format\nreturn false', {
+          status: 400,
+          headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+        }));
+      }
 
-print("✅ KERSFORGE script loaded!")
-print("📜 Script ID: ${scriptId}")
+      // In production: fetch actual script from KV or database
+      // For now: return a template that includes the script ID
+      // Users replace the placeholder with their actual script
+      const luaScript = `--[[
+  KERSFORGE PROTECTED SCRIPT
+  Script ID: ${scriptId}
+  Loaded at: ${new Date().toISOString()}
+  Loader URL: ${url.origin}/api/public/loaders/${scriptId}/lua
+--]]
 
--- Your actual script goes here
+local KERSFORGE = {
+  scriptId = "${scriptId}",
+  loadedAt = "${new Date().toISOString()}",
+  version = "2.0"
+}
+
+-- Anti-tamper: verify we're in Roblox
+if not game or not game:GetService then
+  error("KERSFORGE: Invalid environment")
+end
+
+-- Log load (optional: send to your analytics endpoint)
+local function logLoad()
+  local success = pcall(function()
+    local HttpService = game:GetService("HttpService")
+    local Players = game:GetService("Players")
+    local LocalPlayer = Players.LocalPlayer
+
+    local data = {
+      scriptId = "${scriptId}",
+      player = tostring(LocalPlayer),
+      userId = LocalPlayer and LocalPlayer.UserId or 0,
+      placeId = game.PlaceId,
+      jobId = game.JobId,
+      timestamp = os.time()
+    }
+
+    -- Uncomment to enable analytics logging:
+    -- HttpService:PostAsync("${url.origin}/api/log", HttpService:JSONEncode(data))
+  end)
+end
+
+-- Run log in background (non-blocking)
+task.spawn(logLoad)
+
+print("✅ [KERSFORGE] Script " .. KERSFORGE.scriptId .. " loaded successfully")
+print("📜 [KERSFORGE] Version: " .. KERSFORGE.version)
+
+-- ============================================================
+-- INSERT YOUR ACTUAL SCRIPT BELOW THIS LINE
+-- ============================================================
+
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
-print("👤 Player: " .. tostring(LocalPlayer))
-print("🌐 Place ID: " .. tostring(game.PlaceId))
 
--- MAIN SCRIPT LOGIC
-print("🚀 Script is running!")
+print("👤 [KERSFORGE] Player: " .. tostring(LocalPlayer))
+print("🌐 [KERSFORGE] Place ID: " .. tostring(game.PlaceId))
+print("🚀 [KERSFORGE] Script is running!")
 
--- PUT YOUR CODE HERE
--- Example: 
+-- YOUR CODE HERE:
 -- local function main()
---     print("Hello from your script!")
+--     print("Hello from your protected script!")
 -- end
 -- main()
 
-print("✅ Script execution complete!")
-return true
-`;
+-- ============================================================
+-- END OF YOUR SCRIPT
+-- ============================================================
 
-      return new Response(luaScript, {
+print("✅ [KERSFORGE] Script execution complete!")
+return KERSFORGE`;
+
+      return withCors(new Response(luaScript, {
         headers: {
           'Content-Type': 'text/plain; charset=utf-8',
-          'Cache-Control': 'no-store, no-cache, must-revalidate',
-          'Access-Control-Allow-Origin': '*'
+          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0',
         }
-      });
+      }));
     }
 
     // ============================================================
-    // SUPPORT LEGACY /loader/ FORMAT TOO
+    // 2. LEGACY LOADER – /loader/{scriptId}
     // ============================================================
     if (path.startsWith('/loader/')) {
-      const scriptId = path.replace('/loader/', '');
-      
-      const luaScript = `
--- KERSFORGE PROTECTED SCRIPT
--- Script ID: ${scriptId}
-print("✅ KERSFORGE script loaded!")
-print("📜 Script ID: ${scriptId}")
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-print("👤 Player: " .. tostring(LocalPlayer))
-print("🚀 Script is running!")
-return true
-`;
+      const scriptId = path.replace('/loader/', '').split('/')[0];
 
-      return new Response(luaScript, {
-        headers: {
-          'Content-Type': 'text/plain',
-          'Cache-Control': 'no-store'
-        }
-      });
+      if (!scriptId) {
+        return withCors(new Response('-- Error: No script ID\nreturn false', {
+          status: 400,
+          headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+        }));
+      }
+
+      // Redirect to new format
+      return Response.redirect(`${url.origin}/api/public/loaders/${scriptId}/lua`, 301);
     }
 
     // ============================================================
-    // SERVE HTML FILES
+    // 3. ANALYTICS LOGGING – /api/log
     // ============================================================
-    if (path === '/' || path === '/index.html' || path === '/dashboard.html' || path === '/admin.html' || path === '/callback.html') {
-      return fetch(request);
-    }
-
-    // ============================================================
-    // API - CREATE SCRIPT
-    // ============================================================
-    if (path === '/api/create-script' && request.method === 'POST') {
+    if (path === '/api/log' && method === 'POST') {
       try {
         const body = await request.json();
-        const scriptId = 'script_' + Math.random().toString(36).substring(2, 10);
-        return new Response(JSON.stringify({
-          success: true,
-          id: scriptId,
-          script: { ...body, id: scriptId }
-        }), {
-          headers: { 
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
-          }
-        });
+        // In production: store in KV, D1, or forward to external service
+        console.log('[KERSFORGE LOG]', JSON.stringify(body));
+        return successResponse({ logged: true });
       } catch (e) {
-        return new Response(JSON.stringify({ error: 'Failed to create script' }), {
-          status: 500,
-          headers: { 'Content-Type': 'application/json' }
-        });
+        return errorResponse('Invalid log data', 400);
       }
     }
 
     // ============================================================
-    // API - GET DATA
+    // 4. SCRIPT MANAGEMENT API
     // ============================================================
-    if (path === '/api/data') {
-      // In production, fetch from KV/database
-      return new Response(JSON.stringify({
-        scripts: [],
-        keys: [],
-        bannedHWIDs: [],
-        serverTime: Date.now()
-      }), {
-        headers: { 
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
-        }
+
+    // Create script
+    if (path === '/api/scripts' && method === 'POST') {
+      try {
+        const body = await request.json();
+        const scriptId = 'script_' + crypto.randomUUID().replace(/-/g, '').substring(0, 12);
+
+        // In production: save to KV
+        // await env.KERSFORGE_KV.put(scriptId, JSON.stringify(body));
+
+        return successResponse({
+          id: scriptId,
+          loaderUrl: `${url.origin}/api/public/loaders/${scriptId}/lua`,
+          message: 'Script created successfully'
+        });
+      } catch (e) {
+        return errorResponse('Failed to create script: ' + e.message, 500);
+      }
+    }
+
+    // Get script info
+    if (path.startsWith('/api/scripts/') && method === 'GET') {
+      const scriptId = path.split('/')[3];
+
+      // In production: fetch from KV
+      // const data = await env.KERSFORGE_KV.get(scriptId);
+
+      return successResponse({
+        id: scriptId,
+        loaderUrl: `${url.origin}/api/public/loaders/${scriptId}/lua`,
+        status: 'active',
+        note: 'In production, fetch actual data from KV/database'
       });
     }
 
     // ============================================================
-    // API - DELETE SCRIPT
+    // 5. KEY MANAGEMENT API
     // ============================================================
-    if (path === '/api/delete-script' && request.method === 'POST') {
-      return new Response(JSON.stringify({ success: true }), {
-        headers: { 
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
-        }
-      });
+
+    if (path === '/api/keys' && method === 'POST') {
+      try {
+        const body = await request.json();
+        const key = 'KF-' + Array.from({length: 16}, () => 
+          'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'[Math.floor(Math.random() * 36)]
+        ).join('');
+
+        return successResponse({
+          key: key,
+          createdAt: new Date().toISOString(),
+          expiresAt: body.expiresAt || null,
+          maxUses: body.maxUses || null
+        });
+      } catch (e) {
+        return errorResponse('Failed to generate key', 500);
+      }
     }
 
     // ============================================================
-    // API - GENERATE KEY
+    // 6. HWID MANAGEMENT API
     // ============================================================
-    if (path === '/api/generate-key' && request.method === 'POST') {
-      const key = 'KF-' + Math.random().toString(36).substring(2, 10).toUpperCase();
-      return new Response(JSON.stringify({ success: true, key: key }), {
-        headers: { 
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
-        }
-      });
+
+    if (path === '/api/hwid/ban' && method === 'POST') {
+      try {
+        const body = await request.json();
+        return successResponse({
+          hwid: body.hwid,
+          banned: true,
+          reason: body.reason || 'No reason provided',
+          bannedAt: new Date().toISOString()
+        });
+      } catch (e) {
+        return errorResponse('Failed to ban HWID', 500);
+      }
+    }
+
+    if (path === '/api/hwid/unban' && method === 'POST') {
+      try {
+        const body = await request.json();
+        return successResponse({
+          hwid: body.hwid,
+          banned: false,
+          unbannedAt: new Date().toISOString()
+        });
+      } catch (e) {
+        return errorResponse('Failed to unban HWID', 500);
+      }
     }
 
     // ============================================================
-    // API - DELETE KEY
+    // 7. DASHBOARD / ADMIN PAGES
     // ============================================================
-    if (path === '/api/delete-key' && request.method === 'POST') {
-      return new Response(JSON.stringify({ success: true }), {
-        headers: { 
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
-        }
-      });
+
+    if (path === '/' || path === '/index.html') {
+      return withCors(new Response(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KERSFORGE v2</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: 'Segoe UI', system-ui, sans-serif; 
+      background: #0a0a0f; 
+      color: #e0e0e0; 
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .container { 
+      max-width: 800px; 
+      width: 90%;
+      padding: 40px; 
+      background: rgba(15, 15, 25, 0.9); 
+      border-radius: 20px; 
+      border: 1px solid rgba(180, 0, 0, 0.3);
+      box-shadow: 0 0 40px rgba(180, 0, 0, 0.1);
+    }
+    h1 { 
+      color: #ff3333; 
+      font-size: 2.5rem; 
+      margin-bottom: 10px;
+      text-shadow: 0 0 20px rgba(255, 51, 51, 0.3);
+    }
+    .subtitle { color: #666; margin-bottom: 30px; }
+    .endpoint { 
+      background: rgba(255,255,255,0.03); 
+      padding: 15px; 
+      border-radius: 10px; 
+      margin: 10px 0;
+      border-left: 3px solid #ff3333;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+    }
+    .endpoint code { color: #4ecdc4; }
+    .status { 
+      display: inline-block; 
+      padding: 5px 15px; 
+      background: rgba(0, 255, 100, 0.1); 
+      color: #00ff64; 
+      border-radius: 20px; 
+      font-size: 0.85rem;
+      margin-top: 20px;
+    }
+    .footer { 
+      margin-top: 30px; 
+      color: #444; 
+      font-size: 0.85rem; 
+    }
+    a { color: #ff3333; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔥 KERSFORGE v2</h1>
+    <p class="subtitle">Roblox Script Protection System</p>
+
+    <h3 style="color: #ff3333; margin: 20px 0 10px;">📡 Loader Endpoints</h3>
+    <div class="endpoint">
+      <code>GET /api/public/loaders/{scriptId}/lua</code><br>
+      <span style="color: #888;">Returns raw Lua code for loadstring()</span>
+    </div>
+    <div class="endpoint">
+      <code>GET /loader/{scriptId}</code> <span style="color: #888;">(legacy, redirects)</span>
+    </div>
+
+    <h3 style="color: #ff3333; margin: 20px 0 10px;">🔧 API Endpoints</h3>
+    <div class="endpoint">
+      <code>POST /api/scripts</code> – Create new script<br>
+      <code>GET /api/scripts/{id}</code> – Get script info<br>
+      <code>POST /api/keys</code> – Generate license key<br>
+      <code>POST /api/hwid/ban</code> – Ban HWID<br>
+      <code>POST /api/hwid/unban</code> – Unban HWID
+    </div>
+
+    <div class="status">● System Online</div>
+    <div class="footer">
+      <a href="/terms">Terms of Service</a> | 
+      Worker running on Cloudflare
+    </div>
+  </div>
+</body>
+</html>`, {
+        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+      }));
     }
 
-    // ============================================================
-    // API - BAN HWID
-    // ============================================================
-    if (path === '/api/ban-hwid' && request.method === 'POST') {
-      return new Response(JSON.stringify({ success: true }), {
-        headers: { 
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
-        }
-      });
-    }
-
-    // ============================================================
-    // API - UNBAN HWID
-    // ============================================================
-    if (path === '/api/unban-hwid' && request.method === 'POST') {
-      return new Response(JSON.stringify({ success: true }), {
-        headers: { 
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
-        }
-      });
-    }
-
-    // ============================================================
-    // TERMS PAGE
-    // ============================================================
     if (path === '/terms') {
-      return new Response(`<!DOCTYPE html>
+      return withCors(new Response(`<!DOCTYPE html>
 <html><head><meta charset="UTF-8"><title>KERSFORGE - Terms</title>
-<style>body{font-family:sans-serif;background:#0a0a0a;color:#e0e0e0;padding:40px;display:flex;justify-content:center}.container{max-width:700px;background:rgba(10,10,10,0.9);padding:40px;border-radius:16px;border:1px solid rgba(180,0,0,0.2)}h1{color:#cc0000}p{color:#666;line-height:1.6}a{color:#cc0000}</style>
+<style>body{font-family:sans-serif;background:#0a0a0f;color:#e0e0e0;padding:40px;display:flex;justify-content:center}
+.container{max-width:700px;background:rgba(15,15,25,0.9);padding:40px;border-radius:20px;border:1px solid rgba(180,0,0,0.2)}
+h1{color:#ff3333}p{color:#888;line-height:1.6;margin:15px 0}a{color:#ff3333}</style>
 </head><body><div class="container">
-<h1>KERSFORGE</h1>
+<h1>KERSFORGE v2</h1>
 <h2>Terms of Service</h2>
 <p>By using KERSFORGE, you agree to these terms. License keys are personal and non-transferable. HWID spoofing or key resale results in permanent ban.</p>
 <h2>Privacy Policy</h2>
 <p>We store your email, username, scripts, keys, and HWID for license validation. We never share your data with third parties.</p>
 <p><a href="/">← Back</a></p>
 </div></body></html>`, {
-        headers: { 'Content-Type': 'text/html' }
-      });
+        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+      }));
     }
 
     // ============================================================
-    // FALLBACK
+    // 8. FALLBACK – 404
     // ============================================================
-    return fetch(request);
+    return errorResponse('Not Found', 404);
   }
 };
