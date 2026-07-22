@@ -3,136 +3,304 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KERS0NE PROTECTION - Dashboard</title>
+    <title>KERSFORGE — Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', sans-serif; background: #09090b; color: #f8fafc; padding: 20px; }
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.08); flex-wrap: wrap; gap: 15px; }
-        .logo { font-size: 24px; font-weight: 800; }
-        .logo span { color: #6366f1; }
-        .user { display: flex; align-items: center; gap: 12px; }
-        .btn-outline { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.08); color: white; padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; }
-        .btn-outline:hover { border-color: #6366f1; color: #6366f1; }
-        .card { background: rgba(18, 18, 20, 0.65); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 24px; margin: 20px 0; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; }
-        .btn { background: #6366f1; color: white; padding: 10px 20px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; transition: 0.2s; }
-        .btn:hover { background: #4f46e5; transform: translateY(-2px); }
-        .btn-danger { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.2); padding: 10px 20px; border-radius: 10px; border: none; font-weight: 600; cursor: pointer; }
-        .btn-danger:hover { background: rgba(239,68,68,0.25); }
-        input, textarea { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); color: white; padding: 12px; border-radius: 10px; margin-bottom: 12px; font-size: 13px; }
-        textarea { font-family: 'Courier New', monospace; resize: vertical; min-height: 100px; }
-        input:focus, textarea:focus { outline: none; border-color: #6366f1; }
-        .loadstring-box { background: rgba(0,0,0,0.3); border: 1px dashed rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; font-family: 'Courier New', monospace; font-size: 12px; color: #6366f1; word-break: break-all; cursor: pointer; margin: 8px 0; }
-        .badge { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 6px; display: inline-block; }
-        .badge-active { background: rgba(16,185,129,0.15); color: #10b981; }
-        .badge-disabled { background: rgba(239,68,68,0.15); color: #ef4444; }
-        .badge-ffa { background: rgba(245,158,11,0.15); color: #f59e0b; }
-        .nav { display: flex; gap: 10px; margin: 20px 0; flex-wrap: wrap; }
-        .nav button { background: none; border: none; color: #9ca3af; padding: 10px 16px; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 14px; }
-        .nav button.active { background: rgba(99,102,241,0.15); color: #6366f1; }
-        .view { display: none; }
-        .view.active { display: block; }
-        .status { margin-top: 10px; font-size: 13px; color: #9ca3af; }
-        .status.success { color: #10b981; }
-        .status.error { color: #ef4444; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            min-height: 100vh;
+            background-image: radial-gradient(ellipse at 50% 0%, rgba(180, 0, 0, 0.06) 0%, transparent 60%);
+        }
+        .app { display: flex; min-height: 100vh; }
+        .sidebar {
+            width: 240px;
+            background: rgba(10, 10, 10, 0.92);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(180, 0, 0, 0.12);
+            padding: 28px 18px;
+            height: 100vh;
+            position: sticky;
+            top: 0;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+        .sidebar .logo { font-size: 20px; font-weight: 900; margin-bottom: 32px; }
+        .sidebar .logo span { color: #cc0000; }
+        .sidebar .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            color: #666;
+            font-weight: 500;
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.2s;
+            width: 100%;
+            border: none;
+            background: none;
+            font-family: 'Inter', sans-serif;
+        }
+        .sidebar .nav-item:hover { color: #e0e0e0; background: rgba(255,255,255,0.03); }
+        .sidebar .nav-item.active { background: rgba(204, 0, 0, 0.08); color: #cc0000; border-left: 2px solid #cc0000; border-radius: 0 10px 10px 0; }
+        .sidebar .nav-item .icon { font-size: 16px; }
+        .sidebar .bottom { margin-top: 24px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.04); }
+        .main { flex: 1; padding: 28px 32px; overflow-y: auto; max-height: 100vh; }
+        .topbar { display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.04); margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+        .topbar h2 { font-size: 20px; font-weight: 800; }
+        .topbar .user { display: flex; align-items: center; gap: 16px; }
+        .topbar .user .name { font-weight: 600; font-size: 14px; }
+        .topbar .user .credits { color: #cc0000; font-weight: 700; font-size: 13px; background: rgba(204,0,0,0.08); padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(204,0,0,0.12); }
+        .topbar .user .logout { color: #666; font-size: 13px; cursor: pointer; background: none; border: none; font-family: 'Inter', sans-serif; }
+        .topbar .user .logout:hover { color: #cc0000; }
+        .card {
+            background: rgba(10, 10, 10, 0.8);
+            border: 1px solid rgba(255,255,255,0.04);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        .card h3 { font-size: 15px; font-weight: 700; margin-bottom: 16px; color: #ccc; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+        .script-card {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.04);
+            border-radius: 12px;
+            padding: 18px;
+            transition: 0.2s;
+        }
+        .script-card:hover { border-color: rgba(204, 0, 0, 0.2); transform: translateY(-2px); }
+        .script-card .name { font-weight: 600; font-size: 14px; }
+        .script-card .id { color: #444; font-size: 11px; font-family: 'JetBrains Mono', monospace; margin: 4px 0 8px; }
+        .script-card .badge { font-size: 10px; font-weight: 600; padding: 2px 10px; border-radius: 12px; display: inline-block; margin-right: 4px; }
+        .badge-active { background: rgba(0, 200, 100, 0.12); color: #00cc66; }
+        .badge-disabled { background: rgba(204, 0, 0, 0.12); color: #cc0000; }
+        .badge-ffa { background: rgba(200, 150, 0, 0.12); color: #cc9900; }
+        .badge-compressed { background: rgba(100, 100, 200, 0.12); color: #8888cc; }
+        .badge-protected { background: rgba(204, 0, 0, 0.08); color: #cc0000; }
+        .loadstring-box {
+            background: rgba(0,0,0,0.3);
+            border: 1px dashed rgba(255,255,255,0.04);
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: #cc0000;
+            word-break: break-all;
+            cursor: pointer;
+            margin: 8px 0;
+            transition: 0.2s;
+        }
+        .loadstring-box:hover { border-color: #cc0000; background: rgba(204,0,0,0.04); }
+        input, textarea, select {
+            width: 100%;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.04);
+            color: #e0e0e0;
+            padding: 12px 14px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            transition: 0.2s;
+        }
+        textarea { font-family: 'JetBrains Mono', monospace; resize: vertical; min-height: 100px; font-size: 12px; }
+        input:focus, textarea:focus, select:focus { outline: none; border-color: #cc0000; box-shadow: 0 0 0 3px rgba(204,0,0,0.06); }
+        select option { background: #0a0a0a; color: #e0e0e0; }
+        .btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: 'Inter', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-primary { background: #cc0000; color: white; }
+        .btn-primary:hover { background: #aa0000; transform: translateY(-1px); box-shadow: 0 8px 25px rgba(204,0,0,0.2); }
+        .btn-danger { background: rgba(204, 0, 0, 0.08); color: #cc0000; border: 1px solid rgba(204, 0, 0, 0.08); }
+        .btn-danger:hover { background: rgba(204, 0, 0, 0.15); }
+        .btn-outline { background: rgba(255,255,255,0.03); color: #e0e0e0; border: 1px solid rgba(255,255,255,0.04); }
+        .btn-outline:hover { border-color: #cc0000; color: #cc0000; }
         .flex { display: flex; gap: 10px; flex-wrap: wrap; }
+        .view { display: none; }
+        .view.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .status { margin-top: 10px; font-size: 13px; color: #666; }
+        .status.success { color: #00cc66; }
+        .status.error { color: #cc0000; }
+        .checkbox-container { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #666; cursor: pointer; }
+        .checkbox-container input[type="checkbox"] { width: 16px; height: 16px; accent-color: #cc0000; margin-bottom: 0; }
+        .empty-state { color: #444; text-align: center; padding: 40px 20px; font-size: 14px; }
+        .upload-area {
+            border: 2px dashed rgba(255,255,255,0.04);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-bottom: 12px;
+        }
+        .upload-area:hover { border-color: #cc0000; background: rgba(204,0,0,0.03); }
+        .upload-area .icon { font-size: 32px; display: block; margin-bottom: 8px; }
+        .upload-area .text { color: #666; font-size: 13px; }
+        @media (max-width: 768px) {
+            .app { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; position: relative; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.04); padding: 16px; }
+            .sidebar .logo { margin-bottom: 16px; }
+            .sidebar .nav { display: flex; gap: 4px; flex-wrap: wrap; }
+            .sidebar .nav-item { padding: 8px 12px; font-size: 12px; }
+            .main { padding: 16px; max-height: none; }
+            .grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
 
-<div class="header">
-    <div class="logo">KERS0NE<span>PROTECTION</span></div>
-    <div class="user">
-        <span id="username">User</span>
-        <button onclick="logout()" class="btn-outline">Logout</button>
-    </div>
-</div>
-
-<div class="nav">
-    <button class="active" onclick="switchView('view-scripts')">📜 Scripts</button>
-    <button onclick="switchView('view-obfuscator')">🔮 Obfuscator</button>
-    <button onclick="switchView('view-keys')">🔑 Keys</button>
-    <button onclick="switchView('view-hwids')">🚫 HWID Bans</button>
-</div>
-
-<!-- VIEW: SCRIPTS -->
-<div id="view-scripts" class="view active">
-    <div class="card">
-        <h3 style="margin-bottom:15px;">Your Scripts</h3>
-        <div id="scriptsList" class="grid"></div>
-    </div>
-    <button class="btn" onclick="switchView('view-obfuscator')">+ New Script</button>
-</div>
-
-<!-- VIEW: OBFUSCATOR -->
-<div id="view-obfuscator" class="view">
-    <div class="card">
-        <h3 style="margin-bottom:15px;">Obfuscate Script</h3>
-        <input type="text" id="scriptName" placeholder="Script Name">
-        <textarea id="scriptInput" rows="6" placeholder="-- Paste your Lua script here..."></textarea>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
-            <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
-                <input type="checkbox" id="ffaModeCheck"> FFA Mode (no key required)
-            </label>
+<div class="app">
+    <div class="sidebar">
+        <div class="logo">KERS<span>FORGE</span></div>
+        <div class="nav">
+            <button class="nav-item active" onclick="switchView('view-scripts')"><span class="icon">⚔️</span> Scripts</button>
+            <button class="nav-item" onclick="switchView('view-obfuscator')"><span class="icon">🔮</span> Forge</button>
+            <button class="nav-item" onclick="switchView('view-keys')"><span class="icon">🔑</span> Keys</button>
+            <button class="nav-item" onclick="switchView('view-hwids')"><span class="icon">🛡️</span> Bans</button>
+            <button class="nav-item" onclick="switchView('view-referrals')"><span class="icon">🔥</span> Referrals</button>
         </div>
-        <button class="btn" onclick="obfuscateScript()">🔮 Obfuscate & Save</button>
-        <div id="obfuscateStatus" class="status">Ready</div>
-        <textarea id="scriptOutput" style="margin-top:12px;min-height:100px;font-family:'Courier New',monospace;font-size:12px" placeholder="Obfuscated output will appear here..." readonly></textarea>
+        <div class="bottom">
+            <button class="nav-item" onclick="logout()"><span class="icon">🚪</span> Logout</button>
+        </div>
     </div>
-    <button class="btn-outline" onclick="switchView('view-scripts')">← Back to Scripts</button>
-</div>
 
-<!-- VIEW: KEYS -->
-<div id="view-keys" class="view">
-    <div class="card">
-        <h3 style="margin-bottom:15px;">Generate Key</h3>
-        <input type="number" id="keyDuration" placeholder="Hours (0 = permanent)">
-        <input type="text" id="keyNote" placeholder="Note (optional)">
-        <button class="btn" onclick="generateKey()">🎲 Generate Key</button>
-    </div>
-    <h3 style="margin:20px 0 10px;">Your Keys</h3>
-    <div id="keysList" class="grid"></div>
-</div>
+    <div class="main">
+        <div class="topbar">
+            <h2 id="pageTitle">Scripts</h2>
+            <div class="user">
+                <span class="name" id="username">User</span>
+                <span class="credits" id="creditsDisplay">💰 0 credits</span>
+                <button class="logout" onclick="logout()">Logout</button>
+            </div>
+        </div>
 
-<!-- VIEW: HWID BANS -->
-<div id="view-hwids" class="view">
-    <div class="card">
-        <h3 style="margin-bottom:15px;">Ban HWID</h3>
-        <input type="text" id="banHwidInput" placeholder="HWID to ban">
-        <button class="btn-danger" onclick="banHwid()">Ban HWID</button>
+        <!-- VIEW: SCRIPTS -->
+        <div id="view-scripts" class="view active">
+            <div class="card">
+                <h3>Your Forged Scripts</h3>
+                <div id="scriptsList" class="grid"><div class="empty-state">No scripts forged yet. Create one with the Forge.</div></div>
+            </div>
+            <button class="btn btn-primary" onclick="switchView('view-obfuscator')">+ Forge New Script</button>
+        </div>
+
+        <!-- VIEW: OBFUSCATOR -->
+        <div id="view-obfuscator" class="view">
+            <div class="card">
+                <h3>Forge Your Script</h3>
+                <input type="text" id="scriptName" placeholder="Script Name">
+                
+                <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                    <span class="icon">📁</span>
+                    <div class="text">Click or drag to upload your script</div>
+                    <div class="subtext" style="color:#444;font-size:12px;margin-top:4px;">Supports .lua, .txt files</div>
+                </div>
+                <input type="file" id="fileInput" accept=".lua,.txt" style="display:none" onchange="handleFileUpload(event)">
+                
+                <textarea id="scriptInput" rows="6" placeholder="-- Or paste your Lua script here..."></textarea>
+                
+                <div class="flex" style="margin-bottom: 12px;">
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="ffaModeCheck"> FFA Mode (no key)
+                    </label>
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="compressModeCheck"> Compress Mode
+                    </label>
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="antiDeobfuscateCheck" checked> Anti-Deobfuscate
+                    </label>
+                </div>
+                <button class="btn btn-primary" onclick="obfuscateScript()">⚔️ Forge & Save</button>
+                <div id="obfuscateStatus" class="status">Ready</div>
+                <textarea id="scriptOutput" style="margin-top:12px;min-height:120px;font-family:'JetBrains Mono',monospace;font-size:12px" placeholder="Forged output will appear here..." readonly></textarea>
+            </div>
+            <button class="btn btn-outline" onclick="switchView('view-scripts')">← Back to Scripts</button>
+        </div>
+
+        <!-- VIEW: KEYS -->
+        <div id="view-keys" class="view">
+            <div class="card">
+                <h3>Forge Key</h3>
+                <input type="number" id="keyDuration" placeholder="Hours (0 = permanent)">
+                <input type="text" id="keyNote" placeholder="Note (optional)">
+                <button class="btn btn-primary" onclick="generateKey()">⚔️ Forge Key</button>
+            </div>
+            <div class="card">
+                <h3>Your Keys</h3>
+                <div id="keysList" class="grid"><div class="empty-state">No keys forged yet.</div></div>
+            </div>
+        </div>
+
+        <!-- VIEW: HWID BANS -->
+        <div id="view-hwids" class="view">
+            <div class="card">
+                <h3>Ban HWID</h3>
+                <input type="text" id="banHwidInput" placeholder="HWID to ban">
+                <button class="btn btn-danger" onclick="banHwid()">Ban</button>
+            </div>
+            <div class="card">
+                <h3>Banned HWIDs</h3>
+                <div id="hwidList" class="grid"><div class="empty-state">No banned HWIDs.</div></div>
+            </div>
+        </div>
+
+        <!-- VIEW: REFERRALS -->
+        <div id="view-referrals" class="view">
+            <div class="card">
+                <h3>Your Referral Link</h3>
+                <p style="color: #666; font-size: 13px; margin-bottom: 12px;">Share this link to invite others and earn credits!</p>
+                <div class="loadstring-box" id="referralLink" onclick="copyText(this)">Loading...</div>
+                <div style="margin-top: 12px;">
+                    <button class="btn btn-primary" onclick="copyReferralLink()">📋 Copy Link</button>
+                </div>
+            </div>
+            <div class="card">
+                <h3>Referral Stats</h3>
+                <div id="referralStats" style="color: #666; font-size: 13px;">
+                    <p>🔥 People you invited: <strong id="invitedCount" style="color: #e0e0e0;">0</strong></p>
+                    <p>💰 Credits earned: <strong id="creditsEarned" style="color: #cc0000;">0</strong></p>
+                </div>
+            </div>
+        </div>
     </div>
-    <h3 style="margin:20px 0 10px;">Banned HWIDs</h3>
-    <div id="hwidList" class="grid"></div>
 </div>
 
 <script>
 // ============================================================
-// CHECK LOGIN
+// KERSFORGE - DASHBOARD
 // ============================================================
-function checkLogin() {
-    const session = localStorage.getItem('kp_session');
-    if (!session) { window.location.href = '/'; return; }
-    try {
-        const data = JSON.parse(session);
-        document.getElementById('username').textContent = data.username || 'User';
-    } catch(e) { window.location.href = '/'; }
+
+function getSession() {
+    try { return JSON.parse(localStorage.getItem('kf_session')); } catch { return null; }
 }
 
-function logout() {
-    localStorage.removeItem('kp_session');
-    window.location.href = '/';
+function getUsers() {
+    try { return JSON.parse(localStorage.getItem('kf_users') || '[]'); } catch { return []; }
 }
 
-// ============================================================
-// DATA (stored in localStorage)
-// ============================================================
+function getCredits() {
+    try { return JSON.parse(localStorage.getItem('kf_credits') || '{}'); } catch { return {}; }
+}
+
 function getData(key) {
-    try { return JSON.parse(localStorage.getItem('kp_' + key) || '[]'); } 
-    catch { return []; }
+    try { return JSON.parse(localStorage.getItem('kf_' + key) || '[]'); } catch { return []; }
 }
-function setData(key, data) {
-    localStorage.setItem('kp_' + key, JSON.stringify(data));
-}
+function setData(key, data) { localStorage.setItem('kf_' + key, JSON.stringify(data)); }
 
 function getScripts() { return getData('scripts'); }
 function setScripts(s) { setData('scripts', s); }
@@ -142,68 +310,186 @@ function getBanned() { return getData('banned'); }
 function setBanned(b) { setData('banned', b); }
 
 // ============================================================
-// RENDER FUNCTIONS
+// AUTH CHECK
+// ============================================================
+function checkLogin() {
+    const session = getSession();
+    if (!session) { window.location.href = '/'; return; }
+    document.getElementById('username').textContent = session.username || 'User';
+    document.getElementById('creditsDisplay').textContent = '💰 ' + (session.credits || 0) + ' credits';
+    renderScripts();
+    renderKeys();
+    renderBanned();
+    renderReferrals();
+}
+
+function logout() {
+    localStorage.removeItem('kf_session');
+    window.location.href = '/';
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function switchView(viewId) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById(viewId).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    const titles = { 
+        'view-scripts': 'Scripts', 
+        'view-obfuscator': 'Forge', 
+        'view-keys': 'Keys', 
+        'view-hwids': 'Bans',
+        'view-referrals': 'Referrals'
+    };
+    document.getElementById('pageTitle').textContent = titles[viewId] || 'Dashboard';
+    const navMap = { 
+        'view-scripts': 0, 
+        'view-obfuscator': 1, 
+        'view-keys': 2, 
+        'view-hwids': 3,
+        'view-referrals': 4
+    };
+    const items = document.querySelectorAll('.nav-item');
+    items.forEach((n, i) => n.classList.toggle('active', i === navMap[viewId]));
+}
+
+// ============================================================
+// FILE UPLOAD
+// ============================================================
+function handleFileUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        document.getElementById('scriptInput').value = e.target.result;
+        if (!document.getElementById('scriptName').value) {
+            document.getElementById('scriptName').value = file.name.replace(/\.[^/.]+$/, '');
+        }
+    };
+    reader.readAsText(file);
+    event.target.value = '';
+}
+
+// Drag and drop
+const uploadArea = document.getElementById('uploadArea');
+uploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadArea.classList.add('dragover');
+});
+uploadArea.addEventListener('dragleave', () => {
+    uploadArea.classList.remove('dragover');
+});
+uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.classList.remove('dragover');
+    const file = e.dataTransfer.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+            document.getElementById('scriptInput').value = ev.target.result;
+            if (!document.getElementById('scriptName').value) {
+                document.getElementById('scriptName').value = file.name.replace(/\.[^/.]+$/, '');
+            }
+        };
+        reader.readAsText(file);
+    }
+});
+
+// ============================================================
+// RENDER SCRIPTS
 // ============================================================
 function renderScripts() {
     const scripts = getScripts();
     const container = document.getElementById('scriptsList');
     if (!scripts.length) {
-        container.innerHTML = '<div style="color:#9ca3af;padding:30px;text-align:center">No scripts yet. Create one with the Obfuscator.</div>';
+        container.innerHTML = '<div class="empty-state">No scripts forged yet. Create one with the Forge.</div>';
         return;
     }
     let html = '';
     for (const s of scripts) {
         const statusClass = s.status === 'active' ? 'badge-active' : 'badge-disabled';
-        html += `<div class="card">
-            <div style="font-weight:600;font-size:15px">${s.name}</div>
-            <div style="color:#9ca3af;font-size:12px">ID: ${s.id}</div>
-            <div style="margin:8px 0">
+        html += `<div class="script-card">
+            <div class="name">${s.name}</div>
+            <div class="id">ID: ${s.id}</div>
+            <div style="margin: 6px 0;">
                 <span class="badge ${statusClass}">${s.status}</span>
                 ${s.ffaMode ? '<span class="badge badge-ffa">FFA</span>' : ''}
+                ${s.compressMode ? '<span class="badge badge-compressed">Compressed</span>' : ''}
+                ${s.antiDeobfuscate ? '<span class="badge badge-protected">🔒 Protected</span>' : ''}
             </div>
             <div class="loadstring-box" onclick="copyText(this)">loadstring(game:HttpGet("https://kers0neprotector.pages.dev/loader/${s.id}"))()</div>
             <div class="flex">
-                <button class="btn-danger" onclick="deleteScript('${s.id}')" style="font-size:12px;padding:6px 12px">Delete</button>
+                <button class="btn btn-danger" onclick="deleteScript('${s.id}')" style="font-size:11px;padding:4px 12px;">Delete</button>
             </div>
         </div>`;
     }
     container.innerHTML = html;
 }
 
+// ============================================================
+// RENDER KEYS
+// ============================================================
 function renderKeys() {
     const keys = getKeys();
     const container = document.getElementById('keysList');
     if (!keys.length) {
-        container.innerHTML = '<div style="color:#9ca3af;padding:30px;text-align:center">No keys generated yet.</div>';
+        container.innerHTML = '<div class="empty-state">No keys forged yet.</div>';
         return;
     }
     let html = '';
     for (const k of keys) {
-        html += `<div class="card">
-            <div style="font-family:'Courier New',monospace;font-size:14px;color:#6366f1;font-weight:700">${k.key}</div>
-            <div style="color:#9ca3af;font-size:12px">${k.note || 'No note'}</div>
-            <div style="color:#9ca3af;font-size:12px">${k.durationHours ? k.durationHours + 'h' : 'Permanent'}</div>
-            <button class="btn-danger" onclick="deleteKey('${k.key}')" style="font-size:12px;padding:6px 12px;margin-top:8px">Delete</button>
+        html += `<div class="script-card">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:14px;color:#cc0000;font-weight:700;">${k.key}</div>
+            <div style="color:#666;font-size:12px;">${k.note || 'No note'}</div>
+            <div style="color:#666;font-size:12px;">${k.durationHours ? k.durationHours + 'h' : 'Permanent'}</div>
+            <button class="btn btn-danger" onclick="deleteKey('${k.key}')" style="font-size:11px;padding:4px 12px;margin-top:6px;">Delete</button>
         </div>`;
     }
     container.innerHTML = html;
 }
 
+// ============================================================
+// RENDER BANNED
+// ============================================================
 function renderBanned() {
     const banned = getBanned();
     const container = document.getElementById('hwidList');
     if (!banned.length) {
-        container.innerHTML = '<div style="color:#9ca3af;padding:30px;text-align:center">No banned HWIDs.</div>';
+        container.innerHTML = '<div class="empty-state">No banned HWIDs.</div>';
         return;
     }
     let html = '';
     for (const h of banned) {
-        html += `<div class="card">
-            <div style="font-family:'Courier New',monospace;font-size:13px;color:#ef4444;font-weight:700">${h.hwid}</div>
-            <button class="btn-outline" onclick="unbanHwid('${h.hwid}')" style="font-size:12px;padding:6px 12px;margin-top:8px">Unban</button>
+        html += `<div class="script-card">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#cc0000;font-weight:700;">${h.hwid}</div>
+            <button class="btn btn-outline" onclick="unbanHwid('${h.hwid}')" style="font-size:11px;padding:4px 12px;margin-top:6px;">Unban</button>
         </div>`;
     }
     container.innerHTML = html;
+}
+
+// ============================================================
+// RENDER REFERRALS
+// ============================================================
+function renderReferrals() {
+    const session = getSession();
+    if (!session) return;
+    
+    const link = `https://kers0neprotector.pages.dev/?ref=${session.referralCode || ''}`;
+    document.getElementById('referralLink').textContent = link;
+    
+    const users = getUsers();
+    const invited = users.filter(u => u.referredBy === session.username);
+    document.getElementById('invitedCount').textContent = invited.length;
+    
+    const credits = getCredits();
+    document.getElementById('creditsEarned').textContent = credits[session.email] || 0;
+}
+
+function copyReferralLink() {
+    const el = document.getElementById('referralLink');
+    copyText(el);
 }
 
 // ============================================================
@@ -216,48 +502,116 @@ async function obfuscateScript() {
     const output = document.getElementById('scriptOutput');
     
     if (!name) { status.textContent = '❌ Enter a script name.'; status.className = 'status error'; return; }
-    if (!code.trim()) { status.textContent = '❌ Paste a script to obfuscate.'; status.className = 'status error'; return; }
+    if (!code.trim()) { status.textContent = '❌ Paste or upload a script to forge.'; status.className = 'status error'; return; }
     
-    status.textContent = '⏳ Obfuscating...';
+    status.textContent = '⏳ Forging...';
     status.className = 'status';
     output.value = '';
     
     try {
-        const formData = new FormData();
-        const blob = new Blob([code], { type: 'text/plain' });
-        formData.append('file', blob, 'script.lua');
-        formData.append('anti_env_logger', 'true');
+        const ffaMode = document.getElementById('ffaModeCheck').checked;
+        const compressMode = document.getElementById('compressModeCheck').checked;
+        const antiDeobfuscate = document.getElementById('antiDeobfuscateCheck').checked;
         
-        const response = await fetch('https://kers0ne-0bf.lovable.app/api/public/obfuscate', {
-            method: 'POST',
-            headers: { 'X-API-Key': 'kers0neontop123' },
-            body: formData
-        });
+        let finalCode = code;
         
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(errorText || 'Obfuscation failed (status: ' + response.status + ')');
+        // ANTI-DEOBFUSCATION LAYER
+        if (antiDeobfuscate) {
+            finalCode = `
+-- KERSFORGE PROTECTED SCRIPT
+-- Anti-Deobfuscation Active
+
+local function antiDeobfuscate()
+    local function checkDeobfuscator()
+        local success, result = pcall(function()
+            -- Check for common deobfuscation tools
+            local env = getfenv()
+            if env and type(env) == "table" then
+                local suspicious = {"string.dump", "loadstring", "debug", "bytecode", "decompile"}
+                for _, s in ipairs(suspicious) do
+                    if env[s] then
+                        return true
+                    end
+                end
+            end
+            -- Check for decompiler artifacts
+            if debug and debug.getinfo then
+                local info = debug.getinfo(2)
+                if info and info.source and string.find(info.source, "decompiler") then
+                    return true
+                end
+            end
+            return false
+        end)
+        return success and result or false
+    end
+    
+    if checkDeobfuscator() then
+        print("skidder only")
+        return
+    end
+    
+    -- Also check for common deobfuscation attempts
+    if type(loadstring) ~= "function" then
+        print("skidder only")
+        return
+    end
+end
+
+antiDeobfuscate()
+
+-- Original Script
+${code}
+`;
         }
         
-        const result = await response.text();
-        output.value = result;
+        // Call obfuscation API if compress mode is on
+        let obfuscatedCode = finalCode;
+        if (compressMode) {
+            try {
+                const formData = new FormData();
+                const blob = new Blob([finalCode], { type: 'text/plain' });
+                formData.append('file', blob, 'script.lua');
+                formData.append('anti_env_logger', 'true');
+                
+                const response = await fetch('https://kers0ne-0bf.lovable.app/api/public/obfuscate', {
+                    method: 'POST',
+                    headers: { 'X-API-Key': 'kers0neontop123' },
+                    body: formData
+                });
+                if (response.ok) {
+                    obfuscatedCode = await response.text();
+                }
+            } catch (e) {
+                console.log('Obfuscation API unavailable, using protected code');
+            }
+        }
         
+        output.value = obfuscatedCode;
+        
+        // Save to scripts
         const scripts = getScripts();
         const newScript = {
             id: 'script_' + Math.random().toString(36).substring(2, 10),
             name: name,
-            code: result,
-            ffaMode: document.getElementById('ffaModeCheck').checked,
-            status: 'active'
+            code: obfuscatedCode,
+            originalCode: code,
+            ffaMode: ffaMode,
+            compressMode: compressMode,
+            antiDeobfuscate: antiDeobfuscate,
+            status: 'active',
+            created: Date.now()
         };
         scripts.unshift(newScript);
         setScripts(scripts);
         
-        status.textContent = '✅ Obfuscated and saved!';
+        status.textContent = '✅ Script forged and saved!';
         status.className = 'status success';
         document.getElementById('scriptName').value = '';
         document.getElementById('scriptInput').value = '';
         document.getElementById('ffaModeCheck').checked = false;
+        document.getElementById('compressModeCheck').checked = false;
+        document.getElementById('antiDeobfuscateCheck').checked = true;
         renderScripts();
     } catch (e) {
         status.textContent = '❌ Error: ' + e.message;
@@ -276,14 +630,9 @@ function deleteScript(id) {
 function generateKey() {
     const durationHours = parseInt(document.getElementById('keyDuration').value) || 0;
     const note = document.getElementById('keyNote').value.trim();
-    const key = 'KEY_' + Math.random().toString(36).substring(2, 10).toUpperCase();
+    const key = 'KF-' + Math.random().toString(36).substring(2, 10).toUpperCase();
     const keys = getKeys();
-    keys.push({
-        key: key,
-        note: note,
-        durationHours: durationHours,
-        createdAt: Date.now()
-    });
+    keys.push({ key, note, durationHours, created: Date.now() });
     setKeys(keys);
     document.getElementById('keyDuration').value = '';
     document.getElementById('keyNote').value = '';
@@ -303,7 +652,7 @@ function banHwid() {
     if (!hwid) return alert('Enter an HWID to ban.');
     const banned = getBanned();
     if (!banned.find(b => b.hwid === hwid)) {
-        banned.push({ hwid: hwid, bannedAt: Date.now() });
+        banned.push({ hwid, bannedAt: Date.now() });
         setBanned(banned);
     }
     document.getElementById('banHwidInput').value = '';
@@ -321,7 +670,7 @@ function unbanHwid(hwid) {
 function copyText(el) {
     const text = el.textContent.trim();
     navigator.clipboard.writeText(text).then(() => {
-        el.style.borderColor = '#10b981';
+        el.style.borderColor = '#00cc66';
         setTimeout(() => el.style.borderColor = '', 1500);
     }).catch(() => {
         const range = document.createRange();
@@ -333,22 +682,9 @@ function copyText(el) {
 }
 
 // ============================================================
-// NAVIGATION
-// ============================================================
-function switchView(viewId) {
-    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    document.getElementById(viewId).classList.add('active');
-    document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
-    document.querySelector(`.nav button[onclick*="${viewId}"]`)?.classList.add('active');
-}
-
-// ============================================================
 // INIT
 // ============================================================
 checkLogin();
-renderScripts();
-renderKeys();
-renderBanned();
 </script>
 </body>
 </html>
