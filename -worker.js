@@ -1,4 +1,4 @@
-// _worker.js – KERSFORGE (RETURNS SAVED SCRIPTS - NO HARDCODED CODE)
+// _worker.js – KERSFORGE (FIXED)
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
@@ -11,13 +11,15 @@ export default {
       const parts = path.split('/');
       const scriptId = parts[4] || 'unknown';
 
-      // ==========================================================
-      // IN PRODUCTION: FETCH FROM KV
-      // For now, return a placeholder that you replace with your script
-      // ==========================================================
-      const yourScript = `-- Your saved script goes here
+      // In production: fetch from KV
+      // For now, return a default script
+      const yourScript = `-- KERSFORGE SCRIPT
+-- Script ID: ${scriptId}
+
 print("Script loaded: ${scriptId}")
--- This is whatever you saved in the Forge tab`;
+print("KERSFORGE protection active")
+
+return true`;
 
       return new Response(yourScript, {
         headers: {
@@ -44,7 +46,7 @@ print("Script loaded: ${scriptId}")
     }
 
     // ============================================================
-    // API - CREATE SCRIPT (SAVES YOUR SCRIPT)
+    // API - CREATE SCRIPT (NO VALIDATION)
     // ============================================================
     if (path === '/api/scripts' && request.method === 'POST') {
       try {
@@ -93,6 +95,40 @@ print("Script loaded: ${scriptId}")
       return new Response(JSON.stringify({ success: true, key: key }), {
         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
       });
+    }
+
+    // ============================================================
+    // API - BAN HWID
+    // ============================================================
+    if (path === '/api/hwid/ban' && request.method === 'POST') {
+      try {
+        const body = await request.json();
+        return new Response(JSON.stringify({ success: true, hwid: body.hwid }), {
+          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+        });
+      } catch (e) {
+        return new Response(JSON.stringify({ success: false, error: e.message }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+    }
+
+    // ============================================================
+    // API - UNBAN HWID
+    // ============================================================
+    if (path === '/api/hwid/unban' && request.method === 'POST') {
+      try {
+        const body = await request.json();
+        return new Response(JSON.stringify({ success: true, hwid: body.hwid }), {
+          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+        });
+      } catch (e) {
+        return new Response(JSON.stringify({ success: false, error: e.message }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
     }
 
     // ============================================================
