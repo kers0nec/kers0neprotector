@@ -1,122 +1,33 @@
-// _worker.js – KERSFORGE Loader (PRODUCTION)
+// _worker.js – KERSFORGE Loader (CLEAN VERSION)
 export default {
   async fetch(request) {
     const url = new URL(request.url);
     const path = url.pathname;
 
     // ============================================================
-    // LOADER - RETURNS OBFUSCATED LUA CODE
+    // LOADER - RETURNS CLEAN LUA CODE
     // ============================================================
     if (path.startsWith('/loader/')) {
       const scriptId = path.replace('/loader/', '');
       const key = url.searchParams.get('key') || '';
 
-      // Get script from localStorage (passed via API or stored)
-      // For production, you'd fetch this from KV or database
-      // This is the actual obfuscated script that executes
+      // CLEAN LUA - NO OBFUSCATION, NO ANTI-DEOBFUSCATE
       const luaScript = `
--- KERSFORGE PROTECTED SCRIPT
+-- KERSFORGE Script
 -- Script ID: ${scriptId}
--- ⚔️ Forged with KERSFORGE Protection
 
--- ============================================================
--- ANTI-DEOBFUSCATION LAYER
--- ============================================================
-local function antiDeobfuscate()
-    local function checkDeobfuscator()
-        local success, result = pcall(function()
-            local env = getfenv()
-            if env and type(env) == "table" then
-                local suspicious = {"string.dump", "loadstring", "debug", "bytecode", "decompile", "getfenv", "setfenv"}
-                for _, s in ipairs(suspicious) do
-                    if env[s] then
-                        return true
-                    end
-                end
-            end
-            if debug and debug.getinfo then
-                local info = debug.getinfo(2)
-                if info and info.source and string.find(info.source, "decompiler") then
-                    return true
-                end
-            end
-            -- Check for common deobfuscation patterns
-            if type(loadstring) ~= "function" then
-                return true
-            end
-            return false
-        end)
-        return success and result or false
-    end
-    
-    if checkDeobfuscator() then
-        print("skidder only")
-        return
-    end
-end
-
-antiDeobfuscate()
-
--- ============================================================
--- ANTI-LOGGER (blocks webhooks)
--- ============================================================
-local function antiLogger()
-    local request = http_request or request or HttpPost or syn.request or fluxus.request
-    if request then
-        local oldfunc = hookfunction(request, function(data, ...)
-            if data and data.Url then
-                local url = data.Url:lower()
-                if url:find("discord") or url:find("webhook") or url:find("ipv4") then
-                    data.Url = "blocked_by_kersforge"
-                    print("🔒 Blocked webhook request")
-                end
-            end
-            return oldfunc(data, ...)
-        end)
-    end
-end
-
-antiLogger()
-
--- ============================================================
--- YOUR SCRIPT CONTENT
--- ============================================================
-print("✅ KERSFORGE script loaded successfully!")
+print("✅ KERSFORGE script loaded!")
 print("📜 Script ID: ${scriptId}")
 
 -- Get player info
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
-local RunService = game:GetService("RunService")
-
 print("👤 Player: " .. tostring(LocalPlayer))
 print("🌐 Place ID: " .. tostring(game.PlaceId))
 
--- ============================================================
--- MAIN SCRIPT LOGIC (PUT YOUR CODE HERE)
--- ============================================================
-
--- Example: Anti-tamper heartbeat
-local function startHeartbeat()
-    local last = tick()
-    RunService.Heartbeat:Connect(function()
-        local now = tick()
-        if now - last > 1 then
-            print("⚠️ Tamper detected - script stopping")
-            return
-        end
-        last = now
-    end)
-end
-
-startHeartbeat()
-
--- Your actual protected code goes here
+-- YOUR SCRIPT GOES HERE
 print("🚀 Script is running!")
 
--- ============================================================
--- CLEANUP
--- ============================================================
 return true
 `;
 
@@ -148,8 +59,6 @@ return true
     // API - GET ALL DATA
     // ============================================================
     if (path === '/api/data') {
-      // In production, fetch from KV or database
-      // For now, return empty data
       return new Response(JSON.stringify({
         scripts: [],
         keys: [],
@@ -170,7 +79,6 @@ return true
       try {
         const body = await request.json();
         const scriptId = 'script_' + Math.random().toString(36).substring(2, 10);
-        // In production, save to KV/database
         return new Response(JSON.stringify({
           success: true,
           id: scriptId,
@@ -193,48 +101,25 @@ return true
     // API - DELETE SCRIPT
     // ============================================================
     if (path === '/api/delete-script' && request.method === 'POST') {
-      try {
-        const body = await request.json();
-        // In production, delete from KV/database
-        return new Response(JSON.stringify({
-          success: true,
-          message: 'Script deleted'
-        }), {
-          headers: { 
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
-          }
-        });
-      } catch (e) {
-        return new Response(JSON.stringify({ error: 'Failed to delete script' }), {
-          status: 500,
-          headers: { 'Content-Type': 'application/json' }
-        });
-      }
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { 
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        }
+      });
     }
 
     // ============================================================
     // API - GENERATE KEY
     // ============================================================
     if (path === '/api/generate-key' && request.method === 'POST') {
-      try {
-        const body = await request.json();
-        const key = 'KF-' + Math.random().toString(36).substring(2, 10).toUpperCase();
-        return new Response(JSON.stringify({
-          success: true,
-          key: key
-        }), {
-          headers: { 
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
-          }
-        });
-      } catch (e) {
-        return new Response(JSON.stringify({ error: 'Failed to generate key' }), {
-          status: 500,
-          headers: { 'Content-Type': 'application/json' }
-        });
-      }
+      const key = 'KF-' + Math.random().toString(36).substring(2, 10).toUpperCase();
+      return new Response(JSON.stringify({ success: true, key: key }), {
+        headers: { 
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        }
+      });
     }
 
     // ============================================================
