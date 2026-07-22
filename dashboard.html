@@ -11,16 +11,15 @@
         .logo { font-size: 24px; font-weight: 800; }
         .logo span { color: #6366f1; }
         .user { display: flex; align-items: center; gap: 12px; }
-        .avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.08); }
+        .btn-outline { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.08); color: white; padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+        .btn-outline:hover { border-color: #6366f1; color: #6366f1; }
         .card { background: rgba(18, 18, 20, 0.65); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 24px; margin: 20px 0; }
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; }
         .btn { background: #6366f1; color: white; padding: 10px 20px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; transition: 0.2s; }
         .btn:hover { background: #4f46e5; transform: translateY(-2px); }
         .btn-danger { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.2); padding: 10px 20px; border-radius: 10px; border: none; font-weight: 600; cursor: pointer; }
         .btn-danger:hover { background: rgba(239,68,68,0.25); }
-        .btn-outline { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.08); color: white; padding: 10px 20px; border-radius: 10px; font-weight: 600; cursor: pointer; }
-        .btn-outline:hover { border-color: #6366f1; color: #6366f1; }
-        input, textarea { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); color: white; padding: 12px; border-radius: 10px; margin-bottom: 12px; font-family: 'Segoe UI', sans-serif; font-size: 13px; }
+        input, textarea { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); color: white; padding: 12px; border-radius: 10px; margin-bottom: 12px; font-size: 13px; }
         textarea { font-family: 'Courier New', monospace; resize: vertical; min-height: 100px; }
         input:focus, textarea:focus { outline: none; border-color: #6366f1; }
         .loadstring-box { background: rgba(0,0,0,0.3); border: 1px dashed rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; font-family: 'Courier New', monospace; font-size: 12px; color: #6366f1; word-break: break-all; cursor: pointer; margin: 8px 0; }
@@ -45,8 +44,7 @@
     <div class="logo">KERS0NE<span>PROTECTION</span></div>
     <div class="user">
         <span id="username">User</span>
-        <img id="avatar" class="avatar" src="https://cdn.discordapp.com/embed/avatars/0.png" alt="Avatar">
-        <button onclick="logout()" class="btn-outline" style="padding:6px 14px;font-size:12px;">Logout</button>
+        <button onclick="logout()" class="btn-outline">Logout</button>
     </div>
 </div>
 
@@ -108,6 +106,23 @@
 </div>
 
 <script>
+// ============================================================
+// CHECK LOGIN
+// ============================================================
+function checkLogin() {
+    const session = localStorage.getItem('kp_session');
+    if (!session) { window.location.href = '/'; return; }
+    try {
+        const data = JSON.parse(session);
+        document.getElementById('username').textContent = data.username || 'User';
+    } catch(e) { window.location.href = '/'; }
+}
+
+function logout() {
+    localStorage.removeItem('kp_session');
+    window.location.href = '/';
+}
+
 // ============================================================
 // DATA (stored in localStorage)
 // ============================================================
@@ -227,7 +242,6 @@ async function obfuscateScript() {
         const result = await response.text();
         output.value = result;
         
-        // Save to scripts
         const scripts = getScripts();
         const newScript = {
             id: 'script_' + Math.random().toString(36).substring(2, 10),
@@ -328,27 +342,13 @@ function switchView(viewId) {
     document.querySelector(`.nav button[onclick*="${viewId}"]`)?.classList.add('active');
 }
 
-function logout() {
-    localStorage.clear();
-    window.location.href = '/';
-}
-
 // ============================================================
-// AUTH
+// INIT
 // ============================================================
-function checkLogin() {
-    const user = localStorage.getItem('kp_user');
-    if (user) {
-        document.getElementById('username').textContent = user;
-    } else {
-        window.location.href = '/';
-    }
-    renderScripts();
-    renderKeys();
-    renderBanned();
-}
-
 checkLogin();
+renderScripts();
+renderKeys();
+renderBanned();
 </script>
 </body>
 </html>
