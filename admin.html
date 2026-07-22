@@ -117,8 +117,10 @@
         .stat-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); border-radius: 12px; padding: 16px; text-align: center; }
         .stat-card .number { font-size: 28px; font-weight: 800; color: #cc0000; }
         .stat-card .label { font-size: 12px; color: #666; margin-top: 4px; }
-        .view { display: none; }
-        .view.active { display: block; }
+        .msg { font-size: 13px; margin-top: 10px; padding: 10px; border-radius: 8px; text-align: center; }
+        .msg.error { background: rgba(204, 0, 0, 0.1); color: #cc0000; border: 1px solid rgba(204, 0, 0, 0.15); }
+        .msg.success { background: rgba(0, 200, 100, 0.08); color: #00cc66; border: 1px solid rgba(0, 200, 100, 0.12); }
+        .hidden { display: none !important; }
         @media (max-width: 768px) {
             .app { flex-direction: column; }
             .sidebar { width: 100%; height: auto; position: relative; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.04); padding: 16px; }
@@ -154,7 +156,6 @@
             </div>
         </div>
 
-        <!-- VIEW: OVERVIEW -->
         <div id="view-overview" class="view active">
             <div class="card">
                 <h3>📊 Platform Overview</h3>
@@ -176,36 +177,30 @@
             </div>
         </div>
 
-        <!-- VIEW: OWNERS -->
         <div id="view-owners" class="view">
             <div class="card">
                 <h3>👑 Add New Owner</h3>
-                <p>Add an email to grant admin access. They will see the admin panel on login.</p>
+                <p>Add an email to grant admin access.</p>
                 <div class="flex">
                     <input type="email" id="newOwnerEmail" placeholder="Enter email address" style="flex:1;margin-bottom:0;">
                     <button class="btn btn-primary" onclick="addOwner()">Add Owner</button>
                 </div>
-                <div id="ownerMsg" class="msg hidden" style="margin-top:10px;"></div>
+                <div id="ownerMsg" class="msg hidden"></div>
             </div>
-
             <div class="card">
                 <h3>👑 Current Owners</h3>
                 <div id="ownersList" class="grid"><div class="empty-state">Loading owners...</div></div>
             </div>
         </div>
 
-        <!-- VIEW: USERS -->
         <div id="view-users" class="view">
-            <div class="card">
-                <h3>👤 All Users</h3>
+            <div class="card"><h3>👤 All Users</h3>
                 <div id="usersList" class="grid"><div class="empty-state">Loading users...</div></div>
             </div>
         </div>
 
-        <!-- VIEW: SCRIPTS -->
         <div id="view-scripts" class="view">
-            <div class="card">
-                <h3>⚔️ All Scripts</h3>
+            <div class="card"><h3>⚔️ All Scripts</h3>
                 <div id="scriptsList" class="grid"><div class="empty-state">No scripts found.</div></div>
             </div>
         </div>
@@ -234,45 +229,39 @@ function saveCredits(c) { localStorage.setItem('kf_credits', JSON.stringify(c));
 function getData(key) {
     try { return JSON.parse(localStorage.getItem('kf_' + key) || '[]'); } catch { return []; }
 }
-function setData(key, data) { localStorage.setItem('kf_' + key, JSON.stringify(data)); }
-
 function getScripts() { return getData('scripts'); }
 function getKeys() { return getData('keys'); }
-function getBanned() { return getData('banned'); }
-
-// ============================================================
-// OWNER MANAGEMENT
-// ============================================================
 
 function getOwners() {
     try { return JSON.parse(localStorage.getItem('kf_owners') || '[]'); } catch { return []; }
 }
 function saveOwners(o) { localStorage.setItem('kf_owners', JSON.stringify(o)); }
 
+const HARDCODED_OWNERS = ['admin@kersforge.com'];
+
+function isOwner(email) {
+    const stored = getOwners();
+    return [...HARDCODED_OWNERS, ...stored].includes(email);
+}
+
 function addOwner() {
     const email = document.getElementById('newOwnerEmail').value.trim();
     const msg = document.getElementById('ownerMsg');
     if (!email) { msg.textContent = '❌ Enter an email.'; msg.className = 'msg error'; msg.classList.remove('hidden'); return; }
-    
     let owners = getOwners();
-    if (owners.includes(email)) { 
-        msg.textContent = '❌ Already an owner.'; 
-        msg.className = 'msg error'; 
-        msg.classList.remove('hidden'); 
-        return; 
+    if (owners.includes(email) || HARDCODED_OWNERS.includes(email)) {
+        msg.textContent = '❌ Already an owner.'; msg.className = 'msg error'; msg.classList.remove('hidden'); return;
     }
-    
     owners.push(email);
     saveOwners(owners);
     document.getElementById('newOwnerEmail').value = '';
-    msg.textContent = '✅ Owner added successfully!';
-    msg.className = 'msg success';
-    msg.classList.remove('hidden');
+    msg.textContent = '✅ Owner added successfully!'; msg.className = 'msg success'; msg.classList.remove('hidden');
     renderOwners();
     renderOverview();
 }
 
 function removeOwner(email) {
+    if (HARDCODED_OWNERS.includes(email)) { alert('Cannot remove hardcoded owner.'); return; }
     if (!confirm(`Remove ${email} from owners?`)) return;
     let owners = getOwners();
     owners = owners.filter(o => o !== email);
@@ -281,41 +270,33 @@ function removeOwner(email) {
     renderOverview();
 }
 
-// ============================================================
-// RENDER FUNCTIONS
-// ============================================================
-
 function renderOverview() {
     const users = getUsers();
     const scripts = getScripts();
     const keys = getKeys();
     const owners = getOwners();
     const credits = getCredits();
-    
     document.getElementById('totalUsers').textContent = users.length;
     document.getElementById('totalScripts').textContent = scripts.length;
     document.getElementById('totalKeys').textContent = keys.length;
-    document.getElementById('totalOwners').textContent = owners.length + 1; // +1 for hardcoded admin@kersforge.com
+    document.getElementById('totalOwners').textContent = owners.length + HARDCODED_OWNERS.length;
     document.getElementById('totalReferrals').textContent = Object.keys(credits).length;
 }
 
 function renderOwners() {
     const container = document.getElementById('ownersList');
     const owners = getOwners();
-    
-    if (!owners.length) {
-        container.innerHTML = '<div class="empty-state">No additional owners. (admin@kersforge.com is default)</div>';
+    const all = [...HARDCODED_OWNERS, ...owners];
+    if (!all.length) {
+        container.innerHTML = '<div class="empty-state">No owners.</div>';
         return;
     }
-    
     let html = '';
-    for (const email of owners) {
+    for (const email of all) {
+        const isHardcoded = HARDCODED_OWNERS.includes(email);
         html += `<div class="owner-card">
-            <div>
-                <span class="email">${email}</span>
-                <span class="badge">Owner</span>
-            </div>
-            <button class="btn btn-danger" onclick="removeOwner('${email}')" style="font-size:11px;padding:4px 12px;">Remove</button>
+            <div><span class="email">${email}</span> <span class="badge">${isHardcoded ? '🔒 Default' : 'Owner'}</span></div>
+            ${!isHardcoded ? `<button class="btn btn-danger" onclick="removeOwner('${email}')" style="font-size:11px;padding:4px 12px;">Remove</button>` : '<span style="color:#444;font-size:11px;">Cannot remove</span>'}
         </div>`;
     }
     container.innerHTML = html;
@@ -324,22 +305,18 @@ function renderOwners() {
 function renderUsers() {
     const container = document.getElementById('usersList');
     const users = getUsers();
-    const owners = getOwners();
-    const allOwners = ['admin@kersforge.com', ...owners];
-    
     if (!users.length) {
         container.innerHTML = '<div class="empty-state">No users registered yet.</div>';
         return;
     }
-    
     let html = '';
     for (const user of users) {
-        const isOwner = allOwners.includes(user.email);
+        const owner = isOwner(user.email);
         html += `<div class="owner-card">
             <div>
                 <span class="email">${user.username}</span>
                 <span style="color:#666;font-size:12px;margin-left:8px;">${user.email}</span>
-                ${isOwner ? '<span class="badge">👑 Owner</span>' : ''}
+                ${owner ? '<span class="badge">👑 Owner</span>' : ''}
                 ${user.referredBy ? `<span style="color:#666;font-size:11px;margin-left:8px;">Invited by: ${user.referredBy}</span>` : ''}
                 <span style="color:#666;font-size:11px;margin-left:8px;">💰 ${user.credits || 0} credits</span>
             </div>
@@ -351,22 +328,17 @@ function renderUsers() {
 function renderAdminScripts() {
     const container = document.getElementById('scriptsList');
     const scripts = getScripts();
-    
     if (!scripts.length) {
         container.innerHTML = '<div class="empty-state">No scripts found.</div>';
         return;
     }
-    
     let html = '';
     for (const s of scripts) {
-        const statusClass = s.status === 'active' ? 'badge-active' : 'badge-disabled';
         html += `<div class="script-card" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);border-radius:12px;padding:16px;">
             <div style="font-weight:600;font-size:14px;">${s.name}</div>
             <div style="color:#666;font-size:11px;font-family:monospace;">ID: ${s.id}</div>
             <div style="margin:6px 0;font-size:12px;color:#666;">
-                ${s.ffaMode ? 'FFA' : 'Key Required'} • 
-                ${s.compressMode ? 'Compressed' : 'Raw'} • 
-                ${s.antiDeobfuscate ? '🔒 Protected' : 'Unprotected'}
+                ${s.ffaMode ? 'FFA' : 'Key Required'} • ${s.compressMode ? 'Compressed' : 'Raw'} • ${s.antiDeobfuscate ? '🔒 Protected' : 'Unprotected'}
             </div>
             <div style="color:#666;font-size:11px;">Created: ${new Date(s.created).toLocaleDateString()}</div>
         </div>`;
@@ -374,33 +346,20 @@ function renderAdminScripts() {
     container.innerHTML = html;
 }
 
-// ============================================================
-// NAVIGATION
-// ============================================================
 function switchView(viewId) {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.getElementById(viewId).classList.add('active');
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    const titles = {
-        'view-overview': 'Admin Panel',
-        'view-owners': 'Manage Owners',
-        'view-users': 'All Users',
-        'view-scripts': 'All Scripts'
-    };
+    const titles = { 'view-overview': 'Admin Panel', 'view-owners': 'Manage Owners', 'view-users': 'All Users', 'view-scripts': 'All Scripts' };
     document.getElementById('pageTitle').textContent = titles[viewId] || 'Admin';
     const navMap = { 'view-overview': 0, 'view-owners': 1, 'view-users': 2, 'view-scripts': 3 };
     const items = document.querySelectorAll('.nav-item');
     items.forEach((n, i) => n.classList.toggle('active', i === navMap[viewId]));
-    
-    // Refresh data when switching views
     if (viewId === 'view-owners') renderOwners();
     if (viewId === 'view-users') renderUsers();
     if (viewId === 'view-scripts') renderAdminScripts();
 }
 
-// ============================================================
-// AUTH CHECK
-// ============================================================
 function checkLogin() {
     const session = getSession();
     if (!session) { window.location.href = '/'; return; }
@@ -417,9 +376,6 @@ function logout() {
     window.location.href = '/';
 }
 
-// ============================================================
-// INIT
-// ============================================================
 checkLogin();
 </script>
 </body>
