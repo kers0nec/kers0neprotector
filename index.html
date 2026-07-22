@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KERSFORGE — Script Protection</title>
+    <title>KERSFORGE v2</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', sans-serif;
-            background: #0a0a0a;
+            background: #0a0a0f;
             color: #e0e0e0;
             min-height: 100vh;
             display: flex;
@@ -18,7 +18,7 @@
             background-image: radial-gradient(ellipse at 50% 0%, rgba(180, 0, 0, 0.08) 0%, transparent 60%);
         }
         .container {
-            background: rgba(10, 10, 10, 0.92);
+            background: rgba(10, 10, 15, 0.92);
             backdrop-filter: blur(24px);
             border: 1px solid rgba(180, 0, 0, 0.2);
             border-radius: 24px;
@@ -81,24 +81,14 @@
         .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.04); }
         .features { display: flex; gap: 12px; justify-content: center; margin-top: 16px; flex-wrap: wrap; }
         .features span { font-size: 11px; color: #444; background: rgba(255,255,255,0.02); padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.03); }
-        .referral-box {
-            background: rgba(204, 0, 0, 0.05);
-            border: 1px solid rgba(204, 0, 0, 0.1);
-            border-radius: 12px;
-            padding: 12px 16px;
-            margin: 12px 0;
-            font-size: 13px;
-            color: #888;
-            text-align: center;
-        }
-        .referral-box strong { color: #cc0000; }
+        .version { text-align: center; font-size: 11px; color: #333; margin-top: 16px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="logo">KERS<span>FORGE</span></div>
-    <p class="sub" id="formTitle">Forge your scripts. Protect your work.</p>
+    <p class="sub" id="formTitle">Protect your Lua scripts</p>
 
     <div id="loginForm">
         <div class="form-group">
@@ -107,10 +97,10 @@
         </div>
         <div class="form-group">
             <label>Password</label>
-            <input type="password" id="loginPassword" placeholder="••••••••">
+            <input type="password" id="loginPassword" placeholder="........">
         </div>
         <button class="btn-primary" onclick="login()">Sign In</button>
-        <button class="btn-secondary" onclick="showRegister()">Don't have an account? <span class="toggle-link">Forge One</span></button>
+        <button class="btn-secondary" onclick="showRegister()">No account? <span class="toggle-link">Sign Up</span></button>
         <div id="loginMsg" class="msg hidden"></div>
     </div>
 
@@ -127,41 +117,28 @@
             <label>Password</label>
             <input type="password" id="registerPassword" placeholder="Min 6 characters">
         </div>
-        <div class="form-group">
-            <label>Referral Code (optional)</label>
-            <input type="text" id="registerReferral" placeholder="Enter friend's referral code">
-        </div>
-        <button class="btn-primary" onclick="register()">Forge Account</button>
-        <button class="btn-secondary" onclick="showLogin()">Already forged? <span class="toggle-link">Sign In</span></button>
+        <button class="btn-primary" onclick="register()">Create Account</button>
+        <button class="btn-secondary" onclick="showLogin()">Already have an account? <span class="toggle-link">Sign In</span></button>
         <div id="registerMsg" class="msg hidden"></div>
-        <div id="referralDisplay" class="referral-box hidden">🔥 Invited by: <strong id="referralName">---</strong></div>
     </div>
 
-    <div class="divider">forge • protect • dominate</div>
+    <div class="divider">forge protect dominate</div>
     <div class="features">
-        <span>⚔️ Obfuscation</span>
-        <span>🔑 Key System</span>
-        <span>🛡️ Anti-Deobfuscate</span>
-        <span>👑 Admin Panel</span>
+        <span>Obfuscation</span>
+        <span>Key System</span>
+        <span>Anti-Deobfuscate</span>
+        <span>Admin Panel</span>
     </div>
+    <div class="version">KERSFORGE v2.0</div>
 </div>
 
 <script>
-// ============================================================
-// KERSFORGE - AUTH SYSTEM
-// ============================================================
-
 const OWNERS = ['admin@kersforge.com'];
 
 function getUsers() {
     try { return JSON.parse(localStorage.getItem('kf_users') || '[]'); } catch { return []; }
 }
 function saveUsers(u) { localStorage.setItem('kf_users', JSON.stringify(u)); }
-
-function getCredits() {
-    try { return JSON.parse(localStorage.getItem('kf_credits') || '{}'); } catch { return {}; }
-}
-function saveCredits(c) { localStorage.setItem('kf_credits', JSON.stringify(c)); }
 
 function isOwner(email) {
     let storedOwners = [];
@@ -182,78 +159,43 @@ function hideMsg(id) { document.getElementById(id).classList.add('hidden'); }
 function showLogin() {
     document.getElementById('loginForm').classList.remove('hidden');
     document.getElementById('registerForm').classList.add('hidden');
-    document.getElementById('formTitle').textContent = 'Forge your scripts. Protect your work.';
+    document.getElementById('formTitle').textContent = 'Protect your Lua scripts';
     hideMsg('loginMsg');
     hideMsg('registerMsg');
-    document.getElementById('referralDisplay').classList.add('hidden');
 }
 
 function showRegister() {
     document.getElementById('loginForm').classList.add('hidden');
     document.getElementById('registerForm').classList.remove('hidden');
-    document.getElementById('formTitle').textContent = 'Create your forge';
+    document.getElementById('formTitle').textContent = 'Create your account';
     hideMsg('loginMsg');
     hideMsg('registerMsg');
-    
-    const params = new URLSearchParams(window.location.search);
-    const ref = params.get('ref');
-    if (ref) {
-        document.getElementById('registerReferral').value = ref;
-        const users = getUsers();
-        const referrer = users.find(u => u.referralCode === ref);
-        if (referrer) {
-            document.getElementById('referralDisplay').classList.remove('hidden');
-            document.getElementById('referralName').textContent = referrer.username;
-        }
-    }
-}
-
-function generateReferralCode() {
-    return 'KF-' + Math.random().toString(36).substring(2, 8).toUpperCase();
 }
 
 function register() {
     const username = document.getElementById('registerUsername').value.trim();
     const email = document.getElementById('registerEmail').value.trim();
     const password = document.getElementById('registerPassword').value;
-    const referralCode = document.getElementById('registerReferral').value.trim().toUpperCase();
 
-    if (!username) { showMsg('registerMsg', '❌ Enter a username.', 'error'); return; }
-    if (!email) { showMsg('registerMsg', '❌ Enter an email.', 'error'); return; }
-    if (password.length < 6) { showMsg('registerMsg', '❌ Password must be at least 6 characters.', 'error'); return; }
+    if (!username) { showMsg('registerMsg', 'Enter a username.', 'error'); return; }
+    if (!email) { showMsg('registerMsg', 'Enter an email.', 'error'); return; }
+    if (password.length < 6) { showMsg('registerMsg', 'Password must be at least 6 characters.', 'error'); return; }
 
     let users = getUsers();
-    if (users.find(u => u.email === email)) { showMsg('registerMsg', '❌ Email already registered.', 'error'); return; }
-    if (users.find(u => u.username === username)) { showMsg('registerMsg', '❌ Username already taken.', 'error'); return; }
+    if (users.find(u => u.email === email)) { showMsg('registerMsg', 'Email already registered.', 'error'); return; }
+    if (users.find(u => u.username === username)) { showMsg('registerMsg', 'Username already taken.', 'error'); return; }
 
-    const newUser = {
+    users.push({
         username: username,
         email: email,
         password: password,
-        referralCode: generateReferralCode(),
+        referralCode: 'KF-' + Math.random().toString(36).substring(2, 8).toUpperCase(),
         referredBy: null,
         credits: 0,
         created: Date.now()
-    };
-
-    if (referralCode) {
-        const referrer = users.find(u => u.referralCode === referralCode);
-        if (referrer) {
-            newUser.referredBy = referrer.username;
-            let credits = getCredits();
-            credits[referrer.email] = (credits[referrer.email] || 0) + 5;
-            saveCredits(credits);
-            newUser.credits = 2;
-            showMsg('registerMsg', `✅ Account forged! You got 2 credits. ${referrer.username} got 5 credits!`, 'success');
-        } else {
-            showMsg('registerMsg', '⚠️ Referral code not found. You can still join!', 'success');
-        }
-    } else {
-        showMsg('registerMsg', '✅ Account forged successfully!', 'success');
-    }
-
-    users.push(newUser);
+    });
     saveUsers(users);
+    showMsg('registerMsg', 'Account created successfully!', 'success');
 
     setTimeout(() => {
         showLogin();
@@ -264,10 +206,10 @@ function register() {
 function login() {
     const email = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value;
-    if (!email || !password) { showMsg('loginMsg', '❌ Enter email and password.', 'error'); return; }
+    if (!email || !password) { showMsg('loginMsg', 'Enter email and password.', 'error'); return; }
     const users = getUsers();
     const user = users.find(u => u.email === email && u.password === password);
-    if (!user) { showMsg('loginMsg', '❌ Invalid email or password.', 'error'); return; }
+    if (!user) { showMsg('loginMsg', 'Invalid email or password.', 'error'); return; }
     
     const owner = isOwner(email);
     
@@ -291,11 +233,6 @@ if (session) {
             window.location.href = data.isOwner ? '/admin.html' : '/dashboard.html';
         }
     } catch(e) {}
-}
-
-const params = new URLSearchParams(window.location.search);
-if (params.get('ref')) {
-    showRegister();
 }
 </script>
 </body>
