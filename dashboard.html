@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KERSFORGE — Dashboard</title>
+    <title>KERSFORGE v2 - Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', sans-serif;
-            background: #0a0a0a;
+            background: #0a0a0f;
             color: #e0e0e0;
             min-height: 100vh;
             background-image: radial-gradient(ellipse at 50% 0%, rgba(180, 0, 0, 0.06) 0%, transparent 60%);
@@ -17,7 +17,7 @@
         .app { display: flex; min-height: 100vh; }
         .sidebar {
             width: 240px;
-            background: rgba(10, 10, 10, 0.92);
+            background: rgba(10, 10, 15, 0.92);
             backdrop-filter: blur(20px);
             border-right: 1px solid rgba(180, 0, 0, 0.12);
             padding: 28px 18px;
@@ -47,7 +47,6 @@
         }
         .sidebar .nav-item:hover { color: #e0e0e0; background: rgba(255,255,255,0.03); }
         .sidebar .nav-item.active { background: rgba(204, 0, 0, 0.08); color: #cc0000; border-left: 2px solid #cc0000; border-radius: 0 10px 10px 0; }
-        .sidebar .nav-item .icon { font-size: 16px; }
         .sidebar .bottom { margin-top: 24px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.04); }
         .main { flex: 1; padding: 28px 32px; overflow-y: auto; max-height: 100vh; }
         .topbar { display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.04); margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
@@ -58,7 +57,7 @@
         .topbar .user .logout { color: #666; font-size: 13px; cursor: pointer; background: none; border: none; font-family: 'Inter', sans-serif; }
         .topbar .user .logout:hover { color: #cc0000; }
         .card {
-            background: rgba(10, 10, 10, 0.8);
+            background: rgba(10, 10, 15, 0.8);
             border: 1px solid rgba(255,255,255,0.04);
             border-radius: 16px;
             padding: 24px;
@@ -80,7 +79,7 @@
         .badge-active { background: rgba(0, 200, 100, 0.12); color: #00cc66; }
         .badge-disabled { background: rgba(204, 0, 0, 0.12); color: #cc0000; }
         .badge-ffa { background: rgba(200, 150, 0, 0.12); color: #cc9900; }
-        .badge-compressed { background: rgba(100, 100, 200, 0.12); color: #8888cc; }
+        .badge-protected { background: rgba(204, 0, 0, 0.08); color: #cc0000; }
         .loadstring-box {
             background: rgba(0,0,0,0.3);
             border: 1px dashed rgba(255,255,255,0.04);
@@ -95,7 +94,7 @@
             transition: 0.2s;
         }
         .loadstring-box:hover { border-color: #cc0000; background: rgba(204,0,0,0.04); }
-        input, textarea, select {
+        input, textarea {
             width: 100%;
             background: rgba(255,255,255,0.03);
             border: 1px solid rgba(255,255,255,0.04);
@@ -108,8 +107,7 @@
             transition: 0.2s;
         }
         textarea { font-family: 'JetBrains Mono', monospace; resize: vertical; min-height: 100px; font-size: 12px; }
-        input:focus, textarea:focus, select:focus { outline: none; border-color: #cc0000; box-shadow: 0 0 0 3px rgba(204,0,0,0.06); }
-        select option { background: #0a0a0a; color: #e0e0e0; }
+        input:focus, textarea:focus { outline: none; border-color: #cc0000; box-shadow: 0 0 0 3px rgba(204,0,0,0.06); }
         .btn {
             padding: 10px 20px;
             border-radius: 10px;
@@ -169,14 +167,14 @@
     <div class="sidebar">
         <div class="logo">KERS<span>FORGE</span></div>
         <div class="nav">
-            <button class="nav-item active" onclick="switchView('view-scripts')"><span class="icon">⚔️</span> Scripts</button>
-            <button class="nav-item" onclick="switchView('view-obfuscator')"><span class="icon">🔮</span> Forge</button>
-            <button class="nav-item" onclick="switchView('view-keys')"><span class="icon">🔑</span> Keys</button>
-            <button class="nav-item" onclick="switchView('view-hwids')"><span class="icon">🛡️</span> Bans</button>
-            <button class="nav-item" onclick="switchView('view-referrals')"><span class="icon">🔥</span> Referrals</button>
+            <button class="nav-item active" onclick="switchView('view-scripts')">Scripts</button>
+            <button class="nav-item" onclick="switchView('view-obfuscator')">Forge</button>
+            <button class="nav-item" onclick="switchView('view-keys')">Keys</button>
+            <button class="nav-item" onclick="switchView('view-hwids')">Bans</button>
+            <button class="nav-item" onclick="switchView('view-referrals')">Referrals</button>
         </div>
         <div class="bottom">
-            <button class="nav-item" onclick="logout()"><span class="icon">🚪</span> Logout</button>
+            <button class="nav-item" onclick="logout()">Logout</button>
         </div>
     </div>
 
@@ -185,17 +183,17 @@
             <h2 id="pageTitle">Scripts</h2>
             <div class="user">
                 <span class="name" id="username">User</span>
-                <span class="credits" id="creditsDisplay">💰 0 credits</span>
+                <span class="credits" id="creditsDisplay">0 credits</span>
                 <button class="logout" onclick="logout()">Logout</button>
             </div>
         </div>
 
         <div id="view-scripts" class="view active">
             <div class="card">
-                <h3>Your Forged Scripts</h3>
-                <div id="scriptsList" class="grid"><div class="empty-state">No scripts forged yet. Create one with the Forge.</div></div>
+                <h3>Your Scripts</h3>
+                <div id="scriptsList" class="grid"><div class="empty-state">No scripts yet. Forge one.</div></div>
             </div>
-            <button class="btn btn-primary" onclick="switchView('view-obfuscator')">+ Forge New Script</button>
+            <button class="btn btn-primary" onclick="switchView('view-obfuscator')">+ New Script</button>
         </div>
 
         <div id="view-obfuscator" class="view">
@@ -208,26 +206,27 @@
                     <div class="subtext">Supports .lua, .txt files</div>
                 </div>
                 <input type="file" id="fileInput" accept=".lua,.txt" style="display:none" onchange="handleFileUpload(event)">
-                <textarea id="scriptInput" rows="6" placeholder="-- Paste your Lua script here..."></textarea>
+                <textarea id="scriptInput" rows="6" placeholder="-- Or paste your Lua script here..."></textarea>
                 <div class="flex" style="margin-bottom: 12px;">
                     <label class="checkbox-container"><input type="checkbox" id="ffaModeCheck"> FFA Mode</label>
                     <label class="checkbox-container"><input type="checkbox" id="compressModeCheck"> Compress Mode</label>
+                    <label class="checkbox-container"><input type="checkbox" id="antiDeobfuscateCheck" checked> Anti-Deobfuscate</label>
                 </div>
-                <button class="btn btn-primary" onclick="forgeScript()">⚔️ Forge & Save</button>
+                <button class="btn btn-primary" onclick="forgeScript()">Forge & Save</button>
                 <div id="forgeStatus" class="status">Ready</div>
                 <textarea id="scriptOutput" style="margin-top:12px;min-height:120px;font-family:'JetBrains Mono',monospace;font-size:12px" placeholder="Forged output will appear here..." readonly></textarea>
             </div>
-            <button class="btn btn-outline" onclick="switchView('view-scripts')">← Back to Scripts</button>
+            <button class="btn btn-outline" onclick="switchView('view-scripts')">Back to Scripts</button>
         </div>
 
         <div id="view-keys" class="view">
-            <div class="card"><h3>Forge Key</h3>
+            <div class="card"><h3>Generate Key</h3>
                 <input type="number" id="keyDuration" placeholder="Hours (0 = permanent)">
                 <input type="text" id="keyNote" placeholder="Note (optional)">
-                <button class="btn btn-primary" onclick="generateKey()">⚔️ Forge Key</button>
+                <button class="btn btn-primary" onclick="generateKey()">Generate Key</button>
             </div>
             <div class="card"><h3>Your Keys</h3>
-                <div id="keysList" class="grid"><div class="empty-state">No keys forged yet.</div></div>
+                <div id="keysList" class="grid"><div class="empty-state">No keys yet.</div></div>
             </div>
         </div>
 
@@ -245,12 +244,12 @@
             <div class="card"><h3>Your Referral Link</h3>
                 <p style="color:#666;font-size:13px;margin-bottom:12px;">Share this link to invite others and earn credits!</p>
                 <div class="loadstring-box" id="referralLink" onclick="copyText(this)">Loading...</div>
-                <button class="btn btn-primary" onclick="copyReferralLink()" style="margin-top:12px;">📋 Copy Link</button>
+                <button class="btn btn-primary" onclick="copyReferralLink()" style="margin-top:12px;">Copy Link</button>
             </div>
             <div class="card"><h3>Referral Stats</h3>
                 <div id="referralStats" style="color:#666;font-size:13px;">
-                    <p>🔥 People you invited: <strong id="invitedCount" style="color:#e0e0e0;">0</strong></p>
-                    <p>💰 Credits earned: <strong id="creditsEarned" style="color:#cc0000;">0</strong></p>
+                    <p>People you invited: <strong id="invitedCount" style="color:#e0e0e0;">0</strong></p>
+                    <p>Credits earned: <strong id="creditsEarned" style="color:#cc0000;">0</strong></p>
                 </div>
             </div>
         </div>
@@ -258,10 +257,6 @@
 </div>
 
 <script>
-// ============================================================
-// KERSFORGE - DASHBOARD (CLEAN VERSION)
-// ============================================================
-
 function getSession() {
     try { return JSON.parse(localStorage.getItem('kf_session')); } catch { return null; }
 }
@@ -290,7 +285,7 @@ function checkLogin() {
     const session = getSession();
     if (!session) { window.location.href = '/'; return; }
     document.getElementById('username').textContent = session.username || 'User';
-    document.getElementById('creditsDisplay').textContent = '💰 ' + (session.credits || 0) + ' credits';
+    document.getElementById('creditsDisplay').textContent = (session.credits || 0) + ' credits';
     renderScripts();
     renderKeys();
     renderBanned();
@@ -350,7 +345,7 @@ function renderScripts() {
     const scripts = getScripts();
     const container = document.getElementById('scriptsList');
     if (!scripts.length) {
-        container.innerHTML = '<div class="empty-state">No scripts forged yet.</div>';
+        container.innerHTML = '<div class="empty-state">No scripts yet. Forge one.</div>';
         return;
     }
     let html = '';
@@ -362,9 +357,9 @@ function renderScripts() {
             <div style="margin: 6px 0;">
                 <span class="badge ${statusClass}">${s.status}</span>
                 ${s.ffaMode ? '<span class="badge badge-ffa">FFA</span>' : ''}
-                ${s.compressMode ? '<span class="badge badge-compressed">Compressed</span>' : ''}
+                ${s.antiDeobfuscate ? '<span class="badge badge-protected">Protected</span>' : ''}
             </div>
-            <div class="loadstring-box" onclick="copyText(this)">loadstring(game:HttpGet("https://kers0neprotector.pages.dev/loader/${s.id}"))()</div>
+            <div class="loadstring-box" onclick="copyText(this)">loadstring(game:HttpGet("https://kers0neprotector.pages.dev/api/public/loaders/${s.id}/lua"))()</div>
             <div class="flex">
                 <button class="btn btn-danger" onclick="deleteScript('${s.id}')" style="font-size:11px;padding:4px 12px;">Delete</button>
             </div>
@@ -377,7 +372,7 @@ function renderKeys() {
     const keys = getKeys();
     const container = document.getElementById('keysList');
     if (!keys.length) {
-        container.innerHTML = '<div class="empty-state">No keys forged yet.</div>';
+        container.innerHTML = '<div class="empty-state">No keys yet.</div>';
         return;
     }
     let html = '';
@@ -423,52 +418,71 @@ function renderReferrals() {
 
 function copyReferralLink() { copyText(document.getElementById('referralLink')); }
 
-// ============================================================
-// FORGE SCRIPT - NO OBFUSCATION API
-// ============================================================
-function forgeScript() {
+async function forgeScript() {
     const name = document.getElementById('scriptName').value.trim();
     const code = document.getElementById('scriptInput').value;
     const status = document.getElementById('forgeStatus');
     const output = document.getElementById('scriptOutput');
     
-    if (!name) { status.textContent = '❌ Enter a script name.'; status.className = 'status error'; return; }
-    if (!code.trim()) { status.textContent = '❌ Paste or upload a script to forge.'; status.className = 'status error'; return; }
+    if (!name) { status.textContent = 'Enter a script name.'; status.className = 'status error'; return; }
+    if (!code.trim()) { status.textContent = 'Paste or upload a script to forge.'; status.className = 'status error'; return; }
     
-    status.textContent = '⏳ Forging...';
+    status.textContent = 'Forging...';
     status.className = 'status';
     output.value = '';
     
     try {
         const ffaMode = document.getElementById('ffaModeCheck').checked;
-        const compressMode = document.getElementById('compressModeCheck').checked;
+        const antiDeobfuscate = document.getElementById('antiDeobfuscateCheck').checked;
         
-        // Use the code as-is - NO OBFUSCATION
-        const forgedCode = code;
-        output.value = forgedCode;
+        let finalCode = code;
+        if (antiDeobfuscate) {
+            finalCode = `
+local function antiDeobfuscate()
+    local function checkDeobfuscator()
+        local success, result = pcall(function()
+            local env = getfenv()
+            if env and type(env) == "table" then
+                local suspicious = {"string.dump", "loadstring", "debug", "bytecode", "decompile"}
+                for _, s in ipairs(suspicious) do
+                    if env[s] then return true end
+                end
+            end
+            return false
+        end)
+        return success and result or false
+    end
+    if checkDeobfuscator() then print("skidder only") return end
+end
+antiDeobfuscate()
+${code}
+`;
+        }
+        
+        output.value = finalCode;
         
         const scripts = getScripts();
         const newScript = {
             id: 'script_' + Math.random().toString(36).substring(2, 10),
             name: name,
-            code: forgedCode,
+            code: finalCode,
             ffaMode: ffaMode,
-            compressMode: compressMode,
+            antiDeobfuscate: antiDeobfuscate,
             status: 'active',
             created: Date.now()
         };
         scripts.unshift(newScript);
         setScripts(scripts);
         
-        status.textContent = '✅ Script forged and saved!';
+        status.textContent = 'Script forged and saved!';
         status.className = 'status success';
         document.getElementById('scriptName').value = '';
         document.getElementById('scriptInput').value = '';
         document.getElementById('ffaModeCheck').checked = false;
-        document.getElementById('compressModeCheck').checked = false;
+        document.getElementById('antiDeobfuscateCheck').checked = true;
         renderScripts();
     } catch (e) {
-        status.textContent = '❌ Error: ' + e.message;
+        status.textContent = 'Error: ' + e.message;
         status.className = 'status error';
     }
 }
