@@ -383,7 +383,7 @@ async function saveScript() {
         });
         const data = await response.json();
         
-        if (!data.success) throw new Error(data.error);
+        if (!data.success) throw new Error(data.error || 'Failed to save script');
         
         const scripts = getScripts();
         scripts.unshift({
