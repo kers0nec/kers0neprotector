@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KERSFORGE v2 - Dashboard</title>
+    <title>KERSFORGE - Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -12,11 +12,10 @@
             background: #0a0a0f;
             color: #e0e0e0;
             min-height: 100vh;
-            background-image: radial-gradient(ellipse at 50% 0%, rgba(180, 0, 0, 0.06) 0%, transparent 60%);
         }
         .app { display: flex; min-height: 100vh; }
         .sidebar {
-            width: 240px;
+            width: 220px;
             background: rgba(10, 10, 15, 0.92);
             backdrop-filter: blur(20px);
             border-right: 1px solid rgba(180, 0, 0, 0.12);
@@ -53,7 +52,6 @@
         .topbar h2 { font-size: 20px; font-weight: 800; }
         .topbar .user { display: flex; align-items: center; gap: 16px; }
         .topbar .user .name { font-weight: 600; font-size: 14px; }
-        .topbar .user .credits { color: #cc0000; font-weight: 700; font-size: 13px; background: rgba(204,0,0,0.08); padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(204,0,0,0.12); }
         .topbar .user .logout { color: #666; font-size: 13px; cursor: pointer; background: none; border: none; font-family: 'Inter', sans-serif; }
         .topbar .user .logout:hover { color: #cc0000; }
         .card {
@@ -78,8 +76,6 @@
         .script-card .badge { font-size: 10px; font-weight: 600; padding: 2px 10px; border-radius: 12px; display: inline-block; margin-right: 4px; }
         .badge-active { background: rgba(0, 200, 100, 0.12); color: #00cc66; }
         .badge-disabled { background: rgba(204, 0, 0, 0.12); color: #cc0000; }
-        .badge-ffa { background: rgba(200, 150, 0, 0.12); color: #cc9900; }
-        .badge-protected { background: rgba(204, 0, 0, 0.08); color: #cc0000; }
         .loadstring-box {
             background: rgba(0,0,0,0.3);
             border: 1px dashed rgba(255,255,255,0.04);
@@ -134,8 +130,6 @@
         .status { margin-top: 10px; font-size: 13px; color: #666; }
         .status.success { color: #00cc66; }
         .status.error { color: #cc0000; }
-        .checkbox-container { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #666; cursor: pointer; }
-        .checkbox-container input[type="checkbox"] { width: 16px; height: 16px; accent-color: #cc0000; margin-bottom: 0; }
         .empty-state { color: #444; text-align: center; padding: 40px 20px; font-size: 14px; }
         .upload-area {
             border: 2px dashed rgba(255,255,255,0.04);
@@ -168,10 +162,9 @@
         <div class="logo">KERS<span>FORGE</span></div>
         <div class="nav">
             <button class="nav-item active" onclick="switchView('view-scripts')">Scripts</button>
-            <button class="nav-item" onclick="switchView('view-obfuscator')">Forge</button>
+            <button class="nav-item" onclick="switchView('view-create')">New Script</button>
             <button class="nav-item" onclick="switchView('view-keys')">Keys</button>
             <button class="nav-item" onclick="switchView('view-hwids')">Bans</button>
-            <button class="nav-item" onclick="switchView('view-referrals')">Referrals</button>
         </div>
         <div class="bottom">
             <button class="nav-item" onclick="logout()">Logout</button>
@@ -183,22 +176,23 @@
             <h2 id="pageTitle">Scripts</h2>
             <div class="user">
                 <span class="name" id="username">User</span>
-                <span class="credits" id="creditsDisplay">0 credits</span>
                 <button class="logout" onclick="logout()">Logout</button>
             </div>
         </div>
 
+        <!-- VIEW: SCRIPTS -->
         <div id="view-scripts" class="view active">
             <div class="card">
                 <h3>Your Scripts</h3>
-                <div id="scriptsList" class="grid"><div class="empty-state">No scripts yet. Forge one.</div></div>
+                <div id="scriptsList" class="grid"><div class="empty-state">No scripts yet. Create one.</div></div>
             </div>
-            <button class="btn btn-primary" onclick="switchView('view-obfuscator')">+ New Script</button>
+            <button class="btn btn-primary" onclick="switchView('view-create')">+ New Script</button>
         </div>
 
-        <div id="view-obfuscator" class="view">
+        <!-- VIEW: CREATE SCRIPT -->
+        <div id="view-create" class="view">
             <div class="card">
-                <h3>Forge Your Script</h3>
+                <h3>Create Script</h3>
                 <input type="text" id="scriptName" placeholder="Script Name">
                 <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
                     <span class="icon">📁</span>
@@ -207,18 +201,13 @@
                 </div>
                 <input type="file" id="fileInput" accept=".lua,.txt" style="display:none" onchange="handleFileUpload(event)">
                 <textarea id="scriptInput" rows="6" placeholder="-- Or paste your Lua script here..."></textarea>
-                <div class="flex" style="margin-bottom: 12px;">
-                    <label class="checkbox-container"><input type="checkbox" id="ffaModeCheck"> FFA Mode</label>
-                    <label class="checkbox-container"><input type="checkbox" id="compressModeCheck"> Compress Mode</label>
-                    <label class="checkbox-container"><input type="checkbox" id="antiDeobfuscateCheck" checked> Anti-Deobfuscate</label>
-                </div>
-                <button class="btn btn-primary" onclick="forgeScript()">Forge & Save</button>
-                <div id="forgeStatus" class="status">Ready</div>
-                <textarea id="scriptOutput" style="margin-top:12px;min-height:120px;font-family:'JetBrains Mono',monospace;font-size:12px" placeholder="Forged output will appear here..." readonly></textarea>
+                <button class="btn btn-primary" onclick="createScript()">Save Script</button>
+                <div id="createStatus" class="status">Ready</div>
             </div>
             <button class="btn btn-outline" onclick="switchView('view-scripts')">Back to Scripts</button>
         </div>
 
+        <!-- VIEW: KEYS -->
         <div id="view-keys" class="view">
             <div class="card"><h3>Generate Key</h3>
                 <input type="number" id="keyDuration" placeholder="Hours (0 = permanent)">
@@ -230,6 +219,7 @@
             </div>
         </div>
 
+        <!-- VIEW: HWID BANS -->
         <div id="view-hwids" class="view">
             <div class="card"><h3>Ban HWID</h3>
                 <input type="text" id="banHwidInput" placeholder="HWID to ban">
@@ -239,34 +229,12 @@
                 <div id="hwidList" class="grid"><div class="empty-state">No banned HWIDs.</div></div>
             </div>
         </div>
-
-        <div id="view-referrals" class="view">
-            <div class="card"><h3>Your Referral Link</h3>
-                <p style="color:#666;font-size:13px;margin-bottom:12px;">Share this link to invite others and earn credits!</p>
-                <div class="loadstring-box" id="referralLink" onclick="copyText(this)">Loading...</div>
-                <button class="btn btn-primary" onclick="copyReferralLink()" style="margin-top:12px;">Copy Link</button>
-            </div>
-            <div class="card"><h3>Referral Stats</h3>
-                <div id="referralStats" style="color:#666;font-size:13px;">
-                    <p>People you invited: <strong id="invitedCount" style="color:#e0e0e0;">0</strong></p>
-                    <p>Credits earned: <strong id="creditsEarned" style="color:#cc0000;">0</strong></p>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 
 <script>
 function getSession() {
     try { return JSON.parse(localStorage.getItem('kf_session')); } catch { return null; }
-}
-
-function getUsers() {
-    try { return JSON.parse(localStorage.getItem('kf_users') || '[]'); } catch { return []; }
-}
-
-function getCredits() {
-    try { return JSON.parse(localStorage.getItem('kf_credits') || '{}'); } catch { return {}; }
 }
 
 function getData(key) {
@@ -285,11 +253,9 @@ function checkLogin() {
     const session = getSession();
     if (!session) { window.location.href = '/'; return; }
     document.getElementById('username').textContent = session.username || 'User';
-    document.getElementById('creditsDisplay').textContent = (session.credits || 0) + ' credits';
     renderScripts();
     renderKeys();
     renderBanned();
-    renderReferrals();
 }
 
 function logout() {
@@ -301,9 +267,9 @@ function switchView(viewId) {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.getElementById(viewId).classList.add('active');
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    const titles = { 'view-scripts': 'Scripts', 'view-obfuscator': 'Forge', 'view-keys': 'Keys', 'view-hwids': 'Bans', 'view-referrals': 'Referrals' };
+    const titles = { 'view-scripts': 'Scripts', 'view-create': 'New Script', 'view-keys': 'Keys', 'view-hwids': 'Bans' };
     document.getElementById('pageTitle').textContent = titles[viewId] || 'Dashboard';
-    const navMap = { 'view-scripts': 0, 'view-obfuscator': 1, 'view-keys': 2, 'view-hwids': 3, 'view-referrals': 4 };
+    const navMap = { 'view-scripts': 0, 'view-create': 1, 'view-keys': 2, 'view-hwids': 3 };
     const items = document.querySelectorAll('.nav-item');
     items.forEach((n, i) => n.classList.toggle('active', i === navMap[viewId]));
 }
@@ -345,7 +311,7 @@ function renderScripts() {
     const scripts = getScripts();
     const container = document.getElementById('scriptsList');
     if (!scripts.length) {
-        container.innerHTML = '<div class="empty-state">No scripts yet. Forge one.</div>';
+        container.innerHTML = '<div class="empty-state">No scripts yet. Create one.</div>';
         return;
     }
     let html = '';
@@ -356,8 +322,6 @@ function renderScripts() {
             <div class="id">ID: ${s.id}</div>
             <div style="margin: 6px 0;">
                 <span class="badge ${statusClass}">${s.status}</span>
-                ${s.ffaMode ? '<span class="badge badge-ffa">FFA</span>' : ''}
-                ${s.antiDeobfuscate ? '<span class="badge badge-protected">Protected</span>' : ''}
             </div>
             <div class="loadstring-box" onclick="copyText(this)">loadstring(game:HttpGet("https://kers0neprotector.pages.dev/api/public/loaders/${s.id}/lua"))()</div>
             <div class="flex">
@@ -404,83 +368,43 @@ function renderBanned() {
     container.innerHTML = html;
 }
 
-function renderReferrals() {
-    const session = getSession();
-    if (!session) return;
-    const link = `https://kers0neprotector.pages.dev/?ref=${session.referralCode || ''}`;
-    document.getElementById('referralLink').textContent = link;
-    const users = getUsers();
-    const invited = users.filter(u => u.referredBy === session.username);
-    document.getElementById('invitedCount').textContent = invited.length;
-    const credits = getCredits();
-    document.getElementById('creditsEarned').textContent = credits[session.email] || 0;
-}
-
-function copyReferralLink() { copyText(document.getElementById('referralLink')); }
-
-async function forgeScript() {
+async function createScript() {
     const name = document.getElementById('scriptName').value.trim();
     const code = document.getElementById('scriptInput').value;
-    const status = document.getElementById('forgeStatus');
-    const output = document.getElementById('scriptOutput');
+    const status = document.getElementById('createStatus');
     
     if (!name) { status.textContent = 'Enter a script name.'; status.className = 'status error'; return; }
-    if (!code.trim()) { status.textContent = 'Paste or upload a script to forge.'; status.className = 'status error'; return; }
+    if (!code.trim()) { status.textContent = 'Paste or upload a script.'; status.className = 'status error'; return; }
     
-    status.textContent = 'Forging...';
+    status.textContent = 'Saving...';
     status.className = 'status';
-    output.value = '';
     
     try {
-        const ffaMode = document.getElementById('ffaModeCheck').checked;
-        const antiDeobfuscate = document.getElementById('antiDeobfuscateCheck').checked;
+        const response = await fetch('/api/scripts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, code })
+        });
+        const data = await response.json();
         
-        let finalCode = code;
-        if (antiDeobfuscate) {
-            finalCode = `
-local function antiDeobfuscate()
-    local function checkDeobfuscator()
-        local success, result = pcall(function()
-            local env = getfenv()
-            if env and type(env) == "table" then
-                local suspicious = {"string.dump", "loadstring", "debug", "bytecode", "decompile"}
-                for _, s in ipairs(suspicious) do
-                    if env[s] then return true end
-                end
-            end
-            return false
-        end)
-        return success and result or false
-    end
-    if checkDeobfuscator() then print("skidder only") return end
-end
-antiDeobfuscate()
-${code}
-`;
-        }
-        
-        output.value = finalCode;
+        if (!data.success) throw new Error(data.error);
         
         const scripts = getScripts();
-        const newScript = {
-            id: 'script_' + Math.random().toString(36).substring(2, 10),
+        scripts.unshift({
+            id: data.id,
             name: name,
-            code: finalCode,
-            ffaMode: ffaMode,
-            antiDeobfuscate: antiDeobfuscate,
+            code: code,
             status: 'active',
             created: Date.now()
-        };
-        scripts.unshift(newScript);
+        });
         setScripts(scripts);
         
-        status.textContent = 'Script forged and saved!';
+        status.textContent = 'Script saved successfully!';
         status.className = 'status success';
         document.getElementById('scriptName').value = '';
         document.getElementById('scriptInput').value = '';
-        document.getElementById('ffaModeCheck').checked = false;
-        document.getElementById('antiDeobfuscateCheck').checked = true;
         renderScripts();
+        switchView('view-scripts');
     } catch (e) {
         status.textContent = 'Error: ' + e.message;
         status.className = 'status error';
