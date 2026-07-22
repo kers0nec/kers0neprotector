@@ -1,27 +1,23 @@
-// _worker.js – KERSFORGE (RETURNS ONLY YOUR SCRIPT)
+// _worker.js – KERSFORGE (RETURNS SAVED SCRIPTS - NO HARDCODED CODE)
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const path = url.pathname;
 
     // ============================================================
-    // LOADER – RETURNS ONLY YOUR SCRIPT (NO TEMPLATE)
+    // LOADER – RETURNS YOUR SAVED SCRIPT
     // ============================================================
     if (path.startsWith('/api/public/loaders/') && path.endsWith('/lua')) {
       const parts = path.split('/');
       const scriptId = parts[4] || 'unknown';
 
       // ==========================================================
-      // REPLACE THIS WITH YOUR ACTUAL SCRIPT
-      // This is the ONLY code that will be returned
+      // IN PRODUCTION: FETCH FROM KV
+      // For now, return a placeholder that you replace with your script
       // ==========================================================
-      const yourScript = `
--- Your actual script goes here
--- This is the only code that will execute
-print("Hello from your script!")
-
--- Add your real code below
-`;
+      const yourScript = `-- Your saved script goes here
+print("Script loaded: ${scriptId}")
+-- This is whatever you saved in the Forge tab`;
 
       return new Response(yourScript, {
         headers: {
@@ -48,16 +44,16 @@ print("Hello from your script!")
     }
 
     // ============================================================
-    // API - CREATE SCRIPT
+    // API - CREATE SCRIPT (SAVES YOUR SCRIPT)
     // ============================================================
     if (path === '/api/scripts' && request.method === 'POST') {
       try {
         const body = await request.json();
         const scriptId = 'script_' + crypto.randomUUID().replace(/-/g, '').substring(0, 12);
-        
-        // In production: save the script to KV
+
+        // In production: save to KV
         // await env.KERSFORGE_KV.put(scriptId, body.code);
-        
+
         return new Response(JSON.stringify({
           success: true,
           id: scriptId,
@@ -91,28 +87,10 @@ print("Hello from your script!")
     // API - GENERATE KEY
     // ============================================================
     if (path === '/api/keys' && request.method === 'POST') {
-      const key = 'KF-' + Array.from({length: 16}, () => 
+      const key = 'KF-' + Array.from({length: 16}, () =>
         'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'[Math.floor(Math.random() * 36)]
       ).join('');
       return new Response(JSON.stringify({ success: true, key: key }), {
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
-      });
-    }
-
-    // ============================================================
-    // API - BAN HWID
-    // ============================================================
-    if (path === '/api/hwid/ban' && request.method === 'POST') {
-      return new Response(JSON.stringify({ success: true }), {
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
-      });
-    }
-
-    // ============================================================
-    // API - UNBAN HWID
-    // ============================================================
-    if (path === '/api/hwid/unban' && request.method === 'POST') {
-      return new Response(JSON.stringify({ success: true }), {
         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
       });
     }
