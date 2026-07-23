@@ -1,22 +1,10 @@
-# render.yaml — drop this in the root of kers0nec/kers0neprotector
 services:
   - type: web
     name: kers0neprotector
-    runtime: image
+    runtime: docker
     repo: https://github.com/kers0nec/kers0neprotector
     plan: free
-    dockerCommand: |
-      # Auto-detect and run
-      if [ -f "main.go" ]; then
-        go build -o app && ./app
-      elif [ -f "app.py" ]; then
-        python3 app.py
-      elif [ -f "index.js" ]; then
-        node index.js
-      else
-        echo "No known entrypoint — check repo structure"
-        exit 1
-      fi
+    dockerfilePath: ./Dockerfile
     envVars:
       - key: PORT
         value: 10000
